@@ -22,20 +22,6 @@ module.exports.data = {
       ],
     },
     {
-      name: 'assistant',
-      description: 'Thêm nhạc và điều khiển bằng giọng nói',
-      type: 1, // sub command
-      options: [
-        {
-          name: 'query',
-          description: 'Tên bài hát',
-          required: true,
-          type: 3,
-          autocomplete: true,
-        },
-      ],
-    },
-    {
       name: 'music',
       description: 'Phát nhạc',
       type: 1, // sub command
