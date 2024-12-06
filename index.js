@@ -1,5 +1,5 @@
 require("dotenv").config();
-const { useClient, useCooldowns, useCommands, useFunctions, useGiveaways, useConfig } = require("@zibot/zihooks");
+const { useClient, useCooldowns, useCommands, useFunctions, useGiveaways, useConfig, useResponder } = require("@zibot/zihooks");
 const path = require("node:path");
 const { Player } = require("discord-player");
 const config = useConfig(require("./config"));
@@ -25,7 +25,7 @@ const client = new Client({
 		GatewayIntentBits.DirectMessages, // for dm messages
 		GatewayIntentBits.DirectMessageReactions, // for dm message reaction
 		// GatewayIntentBits.DirectMessageTyping, // for dm message typinh
-		// GatewayIntentBits.MessageContent, // enable if you need message content things
+		GatewayIntentBits.MessageContent, // enable if you need message content things
 	],
 	allowedMentions: {
 		parse: ["users"],
@@ -70,16 +70,18 @@ const ziVoice = useZiVoiceExtractor({
 	lang: "vi-VN",
 });
 
+client.autoRes = new Collection(); // Cache cho các autoresponder
 const initialize = async () => {
 	useClient(client);
 	useCooldowns(new Collection());
+	useResponder(new Collection());
 	await Promise.all([
-		loadFiles(path.join(__dirname, "commands"), useCommands(new Collection())),
-		loadFiles(path.join(__dirname, "functions"), useFunctions(new Collection())),
 		loadEvents(path.join(__dirname, "events/client"), client),
-		loadEvents(path.join(__dirname, "events/player"), player.events),
 		loadEvents(path.join(__dirname, "events/voice"), ziVoice),
 		loadEvents(path.join(__dirname, "events/process"), process),
+		loadEvents(path.join(__dirname, "events/player"), player.events),
+		loadFiles(path.join(__dirname, "commands"), useCommands(new Collection())),
+		loadFiles(path.join(__dirname, "functions"), useFunctions(new Collection())),
 	]);
 
 	client.login(process.env.TOKEN).catch((error) => {
