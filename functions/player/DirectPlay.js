@@ -20,62 +20,71 @@ class DirectYouTubePlayer {
         try {
             logger.info(`DirectPlay: Attempting to play "${query}"`);
             
-            // Search for the track
-            const searchResult = await player.search(query, {
-                searchEngine: 'youtube',
-                requestedBy: options.requestedBy
-            });
+            // Try multiple search strategies for better results
+            const searchStrategies = [
+                { query: query, engine: 'youtube' },
+                { query: `${query} official`, engine: 'youtube' },
+                { query: query.split(' ').slice(0, 3).join(' '), engine: 'youtube' },
+                { query: 'lofi hip hop', engine: 'youtube' } // Last resort
+            ];
             
-            if (!searchResult.tracks?.length) {
-                throw new Error('No tracks found');
-            }
-            
-            const track = searchResult.tracks[0];
-            logger.info(`DirectPlay: Found track "${track.title}" by ${track.author}`);
-            
-            // Use specific YouTube URL patterns that work better on Linux
-            const directUrl = this.getOptimalYouTubeUrl(track.url);
-            logger.info(`DirectPlay: Using optimized URL: ${directUrl}`);
-            
-            // Create a modified search result with the direct URL
-            const directSearch = await player.search(directUrl, {
-                searchEngine: 'youtube',
-                requestedBy: options.requestedBy
-            });
-            
-            if (!directSearch.tracks?.length) {
-                throw new Error('Direct URL search failed');
-            }
-            
-            // Enhanced node options for Linux
-            const nodeOptions = {
-                volume: 50,
-                leaveOnEmpty: true,
-                leaveOnEmptyCooldown: 300000,
-                leaveOnEnd: true,
-                leaveOnEndCooldown: 300000,
-                selfDeaf: true,
+            for (let i = 0; i < searchStrategies.length; i++) {
+                const strategy = searchStrategies[i];
                 
-                // Linux-specific optimizations
-                bufferingTimeout: 3000,
-                connectionTimeout: 30000,
-                
-                metadata: options.metadata || {
-                    channel: voiceChannel,
-                    requestedBy: options.requestedBy
+                try {
+                    logger.info(`DirectPlay: Strategy ${i + 1} - searching for "${strategy.query}"`);
+                    
+                    const searchResult = await player.search(strategy.query, {
+                        searchEngine: strategy.engine,
+                        requestedBy: options.requestedBy
+                    });
+                    
+                    if (!searchResult.tracks?.length) {
+                        logger.warn(`DirectPlay: Strategy ${i + 1} found no tracks`);
+                        continue;
+                    }
+                    
+                    const track = searchResult.tracks[0];
+                    logger.info(`DirectPlay: Strategy ${i + 1} found track "${track.title}" by ${track.author}`);
+                    
+                    // Enhanced node options for Linux with minimal config
+                    const nodeOptions = {
+                        volume: 50,
+                        leaveOnEmpty: true,
+                        leaveOnEmptyCooldown: 300000,
+                        leaveOnEnd: false, // Don't auto-leave to avoid issues
+                        selfDeaf: true,
+                        metadata: options.metadata || {
+                            channel: voiceChannel,
+                            requestedBy: options.requestedBy
+                        }
+                    };
+                    
+                    logger.info(`DirectPlay: Strategy ${i + 1} attempting playback`);
+                    
+                    // Use the search result directly without re-searching
+                    await player.play(voiceChannel, searchResult, {
+                        nodeOptions,
+                        requestedBy: options.requestedBy
+                    });
+                    
+                    logger.info(`DirectPlay: Strategy ${i + 1} successful!`);
+                    return { success: true, track: track, strategy: i + 1 };
+                    
+                } catch (strategyError) {
+                    logger.warn(`DirectPlay: Strategy ${i + 1} failed: ${strategyError.message}`);
+                    
+                    // If this is not the last strategy, continue to next
+                    if (i < searchStrategies.length - 1) {
+                        continue;
+                    } else {
+                        // Last strategy failed, throw error
+                        throw strategyError;
+                    }
                 }
-            };
+            }
             
-            logger.info('DirectPlay: Starting playback with enhanced options');
-            
-            // Attempt playback
-            await player.play(voiceChannel, directSearch, {
-                nodeOptions,
-                requestedBy: options.requestedBy
-            });
-            
-            logger.info('DirectPlay: Playback started successfully');
-            return { success: true, track: directSearch.tracks[0] };
+            throw new Error('All DirectPlay strategies failed');
             
         } catch (error) {
             logger.error(`DirectPlay error: ${error.message}`);

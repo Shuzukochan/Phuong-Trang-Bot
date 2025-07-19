@@ -171,13 +171,46 @@ async function handlePlayRequest(interaction, query, lang, options, queue) {
 		logger.info(`Attempting to play track: ${res.tracks[0].title} by ${res.tracks[0].author}`);
 		logger.debug("Player config:", playerConfig);
 
-		await player.play(interaction.member.voice.channel, res, {
-			nodeOptions: { 
-				...playerConfig, 
-				metadata: await getQueueMetadata(queue, interaction, options, lang) 
-			},
-			requestedBy: interaction.user,
-		});
+		// Check if we're on Linux and should use DirectPlay immediately
+		const isLinux = process.platform === 'linux';
+		if (isLinux) {
+			logger.info("Linux detected - attempting DirectPlay method first");
+			try {
+				const { DirectYouTubePlayer } = require('./DirectPlay');
+				
+				const result = await DirectYouTubePlayer.playDirect(
+					interaction.member.voice.channel,
+					query,
+					{
+						requestedBy: interaction.user,
+						metadata: await getQueueMetadata(queue, interaction, options, lang)
+					}
+				);
+				
+				if (result.success) {
+					await cleanUpInteraction(interaction, queue);
+					logger.info("DirectPlay successful on Linux");
+					return;
+				}
+			} catch (directPlayError) {
+				logger.warn("DirectPlay failed, falling back to normal method:", directPlayError.message);
+			}
+		}
+
+		// Normal play method with aggressive error handling
+		try {
+			await player.play(interaction.member.voice.channel, res, {
+				nodeOptions: { 
+					...playerConfig, 
+					metadata: await getQueueMetadata(queue, interaction, options, lang) 
+				},
+				requestedBy: interaction.user,
+			});
+		} catch (playError) {
+			logger.error("Normal play method failed:", playError.message);
+			// Force trigger fallback strategies
+			throw new Error("Could not extract stream");
+		}
 
 		await cleanUpInteraction(interaction, queue);
 		logger.debug("Track played successfully");
