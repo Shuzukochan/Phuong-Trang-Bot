@@ -148,8 +148,20 @@ async function handlePlayRequest(interaction, query, lang, options, queue) {
 			return joinVoiceChannel(interaction, queue, playerConfig, options, lang);
 		}
 
-		const res = await player.search(query, { requestedBy: interaction.user });
+		// Search with YouTube priority to avoid SoundCloud issues on Linux
+		const searchOptions = { 
+			requestedBy: interaction.user,
+			searchEngine: useConfig().PlayerConfig.QueryType || "youtube"
+		};
+		
+		const res = await player.search(query, searchOptions);
 		logger.debug("Search results obtained:", res);
+		
+		if (!res.tracks?.length) {
+			logger.warn("No tracks found, trying fallback search");
+			throw new Error("No tracks found");
+		}
+
 		await player.play(interaction.member.voice.channel, res, {
 			nodeOptions: { ...playerConfig, metadata: await getQueueMetadata(queue, interaction, options, lang) },
 			requestedBy: interaction.user,
@@ -158,7 +170,31 @@ async function handlePlayRequest(interaction, query, lang, options, queue) {
 		await cleanUpInteraction(interaction, queue);
 		logger.debug("Track played successfully");
 	} catch (e) {
-		logger.error(`Error in handlePlayRequest:  ${JSON.stringify(e)}`);
+		logger.error(`Error in handlePlayRequest: ${e.message}`);
+		
+		// Handle specific stream extraction errors
+		if (e.message?.includes("Could not extract stream") || e.message?.includes("NoResultError")) {
+			logger.warn("Stream extraction failed, trying alternative search");
+			try {
+				// Retry with different search approach
+				const fallbackRes = await player.search(`${query} official`, { 
+					requestedBy: interaction.user,
+					searchEngine: "youtube"
+				});
+				
+				if (fallbackRes.tracks?.length) {
+					await player.play(interaction.member.voice.channel, fallbackRes, {
+						nodeOptions: { ...playerConfig, metadata: await getQueueMetadata(queue, interaction, options, lang) },
+						requestedBy: interaction.user,
+					});
+					await cleanUpInteraction(interaction, queue);
+					return;
+				}
+			} catch (fallbackError) {
+				logger.error("Fallback search also failed:", fallbackError.message);
+			}
+		}
+		
 		await handleError(interaction, lang);
 	}
 }

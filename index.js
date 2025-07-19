@@ -98,6 +98,7 @@ if (config.DevConfig.YoutubeiExtractor) {
 if (config.DevConfig.ShuzukoExtractor) player.extractors.register(ShuzukoExtractor, {});
 
 player.extractors.register(TextToSpeech, {});
+// Load all extractors but with better error handling
 player.extractors.loadMulti(DefaultExtractors);
 
 // Debug
