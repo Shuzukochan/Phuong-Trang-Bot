@@ -12,12 +12,25 @@ async function testDirectPlay() {
             intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates]
         });
         
-        const player = new Player(client);
+        const player = new Player(client, {
+            ytdlOptions: {
+                quality: 'highestaudio',
+                highWaterMark: 1 << 25,
+            }
+        });
         
-        // Force load only YouTube extractor
-        const { YoutubeiExtractor } = require('discord-player-youtubei');
-        player.extractors.register(YoutubeiExtractor, {});
-        console.log('✅ YoutubeiExtractor loaded');
+        // Load extractors like in main bot
+        await player.extractors.loadDefault((ext) => {
+            // Exclude SoundCloud extractor on Linux
+            if (process.platform === 'linux' && ext.includes('soundcloud')) {
+                console.log(`❌ Excluded: ${ext}`);
+                return false;
+            }
+            console.log(`✅ Loaded: ${ext}`);
+            return true;
+        });
+        
+        console.log('✅ Extractors loaded with default configuration');
         
         const testQueries = [
             'lofi hip hop',
