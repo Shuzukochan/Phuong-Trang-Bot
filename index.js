@@ -85,9 +85,34 @@ const logger = useLogger(
 	}),
 );
 
-const player = new Player(client, {
+// Enhanced Player config for Linux server compatibility
+const playerOptions = {
 	skipFFmpeg: false,
-});
+	// Linux-specific audio options
+	ytdlOptions: {
+		quality: 'highestaudio',
+		filter: 'audioonly',
+		format: 'opus',
+		highWaterMark: 1 << 25
+	},
+	// FFmpeg options for better Linux compatibility
+	ffmpegOptions: {
+		args: [
+			'-reconnect', '1',
+			'-reconnect_streamed', '1',
+			'-reconnect_delay_max', '5',
+			'-analyzeduration', '0',
+			'-loglevel', '0',
+			'-ar', '48000',
+			'-ac', '2',
+			'-f', 'opus'
+		],
+		highWaterMark: 1 << 25
+	}
+};
+
+console.log('🎵 Creating Player with Linux-optimized config');
+const player = new Player(client, playerOptions);
 
 player.setMaxListeners(100);
 // Always enable YoutubeiExtractor for better YouTube support

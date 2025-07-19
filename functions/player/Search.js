@@ -168,8 +168,14 @@ async function handlePlayRequest(interaction, query, lang, options, queue) {
 			throw new Error("No tracks found");
 		}
 
+		logger.info(`Attempting to play track: ${res.tracks[0].title} by ${res.tracks[0].author}`);
+		logger.debug("Player config:", playerConfig);
+
 		await player.play(interaction.member.voice.channel, res, {
-			nodeOptions: { ...playerConfig, metadata: await getQueueMetadata(queue, interaction, options, lang) },
+			nodeOptions: { 
+				...playerConfig, 
+				metadata: await getQueueMetadata(queue, interaction, options, lang) 
+			},
 			requestedBy: interaction.user,
 		});
 
@@ -225,25 +231,48 @@ async function handlePlayRequest(interaction, query, lang, options, queue) {
 				logger.warn("Fallback 2 failed:", fallbackError2.message);
 			}
 			
-			// Strategy 3: Try generic popular music if all fails
+			// Strategy 3: Try DirectPlay for Linux compatibility
 			try {
-				logger.info("Fallback 3: Generic popular music");
-				const fallbackRes3 = await player.search("lofi hip hop", { 
+				logger.info("Fallback 3: DirectPlay method");
+				const { DirectYouTubePlayer } = require('./DirectPlay');
+				
+				const result = await DirectYouTubePlayer.playDirect(
+					interaction.member.voice.channel,
+					query,
+					{
+						requestedBy: interaction.user,
+						metadata: await getQueueMetadata(queue, interaction, options, lang)
+					}
+				);
+				
+				if (result.success) {
+					await cleanUpInteraction(interaction, queue);
+					logger.info("Fallback 3 successful - DirectPlay worked");
+					return;
+				}
+			} catch (fallbackError3) {
+				logger.warn("Fallback 3 (DirectPlay) failed:", fallbackError3.message);
+			}
+			
+			// Strategy 4: Generic popular music as last resort
+			try {
+				logger.info("Fallback 4: Generic popular music (last resort)");
+				const fallbackRes4 = await player.search("lofi hip hop", { 
 					requestedBy: interaction.user,
 					searchEngine: "youtube"
 				});
 				
-				if (fallbackRes3.tracks?.length) {
-					await player.play(interaction.member.voice.channel, fallbackRes3, {
+				if (fallbackRes4.tracks?.length) {
+					await player.play(interaction.member.voice.channel, fallbackRes4, {
 						nodeOptions: { ...playerConfig, metadata: await getQueueMetadata(queue, interaction, options, lang) },
 						requestedBy: interaction.user,
 					});
 					await cleanUpInteraction(interaction, queue);
-					logger.info("Fallback 3 successful - playing generic music");
+					logger.info("Fallback 4 successful - playing generic music");
 					return;
 				}
-			} catch (fallbackError3) {
-				logger.error("All fallback strategies failed:", fallbackError3.message);
+			} catch (fallbackError4) {
+				logger.error("All fallback strategies failed including DirectPlay:", fallbackError4.message);
 			}
 		}
 		
