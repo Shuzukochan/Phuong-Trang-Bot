@@ -29,15 +29,22 @@ async function testCompleteSystem() {
         
         console.log('✅ Discord client and player created');
         
-        // Load extractors like in main bot
-        await player.extractors.loadDefault((ext) => {
-            if (process.platform === 'linux' && ext.includes('soundcloud')) {
-                console.log(`❌ Excluded: ${ext}`);
-                return false;
+        // Load extractors with new API
+        try {
+            const { DefaultExtractors } = require('@discord-player/extractor');
+            await player.extractors.loadMulti(DefaultExtractors);
+            console.log('✅ Default extractors loaded with new API');
+        } catch (extError) {
+            console.log(`⚠️ New API failed, trying alternative: ${extError.message}`);
+            // Fallback to manual extractor loading
+            try {
+                const { YoutubeiExtractor } = require('discord-player-youtubei');
+                player.extractors.register(YoutubeiExtractor, {});
+                console.log('✅ YouTube extractor loaded manually');
+            } catch (manualError) {
+                console.log(`❌ Manual loading failed: ${manualError.message}`);
             }
-            console.log(`✅ Loaded: ${ext}`);
-            return true;
-        });
+        }
         
         console.log('\n🔍 Testing Music Search Strategies:');
         
