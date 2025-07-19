@@ -305,10 +305,55 @@ async function handlePlayRequest(interaction, query, lang, options, queue) {
 					return;
 				}
 			} catch (fallbackError4) {
-				logger.error("All fallback strategies failed including DirectPlay:", fallbackError4.message);
+				logger.warn("Fallback 4 failed:", fallbackError4.message);
+			}
+			
+			// Strategy 5: Emergency Player (raw audio streaming) - Final attempt
+			try {
+				logger.info("Fallback 5: EmergencyPlayer (raw audio streaming)");
+				const { EmergencyPlayer } = require('./EmergencyPlayer');
+				
+				const emergencyResult = await EmergencyPlayer.emergencyPlay(
+					interaction.member.voice.channel,
+					query,
+					{ requestedBy: interaction.user }
+				);
+				
+				if (emergencyResult.success) {
+					// Send success message manually since EmergencyPlayer bypasses normal flow
+					const embed = new EmbedBuilder()
+						.setColor('#ff9900')
+						.setTitle('🆘 Emergency Music Started')
+						.setDescription(`🎵 Playing emergency audio`)
+						.addFields(
+							{
+								name: 'Original Request',
+								value: `"${query}"`,
+								inline: true
+							},
+							{
+								name: 'Emergency Track',
+								value: emergencyResult.track?.title || emergencyResult.emergencyQuery,
+								inline: true
+							},
+							{
+								name: 'Status',
+								value: '⚠️ Emergency mode active',
+								inline: true
+							}
+						)
+						.setFooter({ text: 'Emergency playback - limited controls available' });
+					
+					await interaction.editReply({ embeds: [embed] });
+					logger.info("EmergencyPlayer successful - emergency audio playing");
+					return;
+				}
+			} catch (emergencyError) {
+				logger.error("Fallback 5 (EmergencyPlayer) failed:", emergencyError.message);
 			}
 		}
 		
+		logger.error("ALL FALLBACK STRATEGIES FAILED - No audio playback possible");
 		await handleError(interaction, lang);
 	}
 }

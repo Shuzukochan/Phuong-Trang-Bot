@@ -62,11 +62,40 @@ class DirectYouTubePlayer {
                     
                     logger.info(`DirectPlay: Strategy ${i + 1} attempting playback`);
                     
-                    // Use the search result directly without re-searching
-                    await player.play(voiceChannel, searchResult, {
-                        nodeOptions,
+                    // FORCE different approach - create stream manually
+                    const queue = player.nodes.create(voiceChannel.guild, {
+                        ...nodeOptions,
                         requestedBy: options.requestedBy
                     });
+                    
+                    if (!queue.connection) {
+                        await queue.connect(voiceChannel);
+                    }
+                    
+                    // Add track to queue manually
+                    queue.addTrack(track);
+                    
+                    // Force play with minimal extraction
+                    if (!queue.currentTrack) {
+                        try {
+                            await queue.node.play();
+                        } catch (playError) {
+                            logger.warn(`DirectPlay manual play failed: ${playError.message}`);
+                            // Try alternative URL approach
+                            const altUrl = `https://www.youtube.com/watch?v=${track.url.split('v=')[1]?.split('&')[0]}`;
+                            logger.info(`DirectPlay trying alternative URL: ${altUrl}`);
+                            
+                            const altSearch = await player.search(altUrl, {
+                                searchEngine: 'youtube',
+                                requestedBy: options.requestedBy
+                            });
+                            
+                            if (altSearch.tracks?.length > 0) {
+                                queue.addTrack(altSearch.tracks[0]);
+                                await queue.node.play();
+                            }
+                        }
+                    }
                     
                     logger.info(`DirectPlay: Strategy ${i + 1} successful!`);
                     return { success: true, track: track, strategy: i + 1 };
