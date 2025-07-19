@@ -11,48 +11,67 @@ const client = new Client({
 const player = new Player(client);
 
 // Load extractors the same way as main bot
-try {
-    const { YoutubeExtractor, AttachmentExtractor, ReverbnationExtractor } = require('@discord-player/extractor');
-    
-    player.extractors.register(YoutubeExtractor, {});
-    if (AttachmentExtractor) player.extractors.register(AttachmentExtractor, {});
-    if (ReverbnationExtractor) player.extractors.register(ReverbnationExtractor, {});
-    
-    console.log('✅ Loaded safe extractors: YouTube, Attachment, Reverbnation');
-} catch (error) {
-    console.log('⚠️ Falling back to filtered DefaultExtractors');
-    const safeExtractors = DefaultExtractors.filter(extractor => {
-        const extractorName = extractor.name || extractor.constructor?.name || '';
-        return !extractorName.toLowerCase().includes('soundcloud');
-    });
-    player.extractors.loadMulti(safeExtractors);
-}
+console.log('🎵 Filtering DefaultExtractors to exclude SoundCloud...');
+
+const safeExtractors = DefaultExtractors.filter(extractor => {
+    try {
+        const extractorName = extractor.identifier || extractor.name || '';
+        const isExcluded = extractorName.toLowerCase().includes('soundcloud');
+        
+        if (isExcluded) {
+            console.log(`❌ Excluded: ${extractorName}`);
+            return false;
+        }
+        
+        console.log(`✅ Included: ${extractorName}`);
+        return true;
+    } catch (error) {
+        console.log(`⚠️ Error checking extractor:`, error.message);
+        return false;
+    }
+});
+
+console.log(`🎵 Loading ${safeExtractors.length} safe extractors`);
+player.extractors.loadMulti(safeExtractors);
 
 // Test extractors
 console.log('\n🔍 Testing Extractors:');
 console.log('='.repeat(50));
 
-// Get all registered extractors
-const extractors = player.extractors.store.map(ext => ext.instance);
+// Get all registered extractors (safely)
+const extractors = Array.from(player.extractors.store.values()).map(ext => ext.instance);
 
 console.log('📦 Registered Extractors:');
 extractors.forEach((ext, index) => {
-    const name = ext.constructor.name || ext.name || 'Unknown';
-    const hasSoundCloud = name.toLowerCase().includes('soundcloud');
-    console.log(`${index + 1}. ${name} ${hasSoundCloud ? '❌ (SOUNDCLOUD!)' : '✅'}`);
+    try {
+        const name = ext?.identifier || ext?.constructor?.name || ext?.name || 'Unknown';
+        const hasSoundCloud = name.toLowerCase().includes('soundcloud');
+        console.log(`${index + 1}. ${name} ${hasSoundCloud ? '❌ (SOUNDCLOUD!)' : '✅'}`);
+    } catch (error) {
+        console.log(`${index + 1}. [Error reading extractor] ⚠️`);
+    }
 });
 
 console.log(`\n📊 Total extractors: ${extractors.length}`);
 
 const soundCloudExtractors = extractors.filter(ext => {
-    const name = ext.constructor.name || ext.name || '';
-    return name.toLowerCase().includes('soundcloud');
+    try {
+        const name = ext?.identifier || ext?.constructor?.name || ext?.name || '';
+        return name.toLowerCase().includes('soundcloud');
+    } catch (error) {
+        return false;
+    }
 });
 
 if (soundCloudExtractors.length > 0) {
     console.log('❌ WARNING: SoundCloud extractors still present!');
     soundCloudExtractors.forEach(ext => {
-        console.log(`   - ${ext.constructor.name || ext.name}`);
+        try {
+            const name = ext?.identifier || ext?.constructor?.name || ext?.name || 'Unknown';
+            console.log(`   - ${name}`);
+        } catch (error) {
+            console.log(`   - [Error reading extractor name]`);
+        }
     });
 } else {
     console.log('✅ SUCCESS: No SoundCloud extractors found!');

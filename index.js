@@ -99,25 +99,30 @@ if (config.DevConfig.ShuzukoExtractor) player.extractors.register(ShuzukoExtract
 
 player.extractors.register(TextToSpeech, {});
 
-// Load only safe extractors (excluding SoundCloud) for Linux server compatibility
-try {
-	// Load specific extractors that work reliably on Linux servers
-	const { YoutubeExtractor, AttachmentExtractor, ReverbnationExtractor } = require('@discord-player/extractor');
-	
-	player.extractors.register(YoutubeExtractor, {});
-	if (AttachmentExtractor) player.extractors.register(AttachmentExtractor, {});
-	if (ReverbnationExtractor) player.extractors.register(ReverbnationExtractor, {});
-	
-	console.log('🎵 Loaded safe extractors: YouTube, Attachment, Reverbnation');
-} catch (error) {
-	console.log('⚠️ Falling back to filtered DefaultExtractors');
-	// Fallback: filter DefaultExtractors
-	const safeExtractors = DefaultExtractors.filter(extractor => {
-		const extractorName = extractor.name || extractor.constructor?.name || '';
-		return !extractorName.toLowerCase().includes('soundcloud');
-	});
-	player.extractors.loadMulti(safeExtractors);
-}
+// Filter DefaultExtractors to exclude SoundCloud (safer approach)
+console.log('🎵 Filtering DefaultExtractors to exclude SoundCloud...');
+
+const safeExtractors = DefaultExtractors.filter(extractor => {
+	try {
+		// Check extractor name/identifier to exclude SoundCloud
+		const extractorName = extractor.identifier || extractor.name || '';
+		const isExcluded = extractorName.toLowerCase().includes('soundcloud');
+		
+		if (isExcluded) {
+			console.log(`❌ Excluded: ${extractorName}`);
+			return false;
+		}
+		
+		console.log(`✅ Included: ${extractorName}`);
+		return true;
+	} catch (error) {
+		console.log(`⚠️ Error checking extractor:`, error.message);
+		return false; // Exclude if error
+	}
+});
+
+console.log(`🎵 Loading ${safeExtractors.length} safe extractors (excluded SoundCloud)`);
+player.extractors.loadMulti(safeExtractors);
 
 // Debug
 if (config.DevConfig.DJS_DEBUG) client.on("debug", (m) => logger.debug(m));
