@@ -149,10 +149,16 @@ async function handlePlayRequest(interaction, query, lang, options, queue) {
 		}
 
 		// Search with YouTube priority to avoid SoundCloud issues on Linux
+		const configSettings = useConfig().PlayerConfig;
 		const searchOptions = { 
 			requestedBy: interaction.user,
-			searchEngine: useConfig().PlayerConfig.QueryType || "youtube"
+			searchEngine: configSettings.QueryType || "youtube"
 		};
+		
+		// Force disable SoundCloud if configured
+		if (configSettings.disableSoundCloud) {
+			searchOptions.searchEngine = "youtube";
+		}
 		
 		const res = await player.search(query, searchOptions);
 		logger.debug("Search results obtained:", res);

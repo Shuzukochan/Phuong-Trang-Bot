@@ -98,8 +98,26 @@ if (config.DevConfig.YoutubeiExtractor) {
 if (config.DevConfig.ShuzukoExtractor) player.extractors.register(ShuzukoExtractor, {});
 
 player.extractors.register(TextToSpeech, {});
-// Load all extractors but with better error handling
-player.extractors.loadMulti(DefaultExtractors);
+
+// Load only safe extractors (excluding SoundCloud) for Linux server compatibility
+try {
+	// Load specific extractors that work reliably on Linux servers
+	const { YoutubeExtractor, AttachmentExtractor, ReverbnationExtractor } = require('@discord-player/extractor');
+	
+	player.extractors.register(YoutubeExtractor, {});
+	if (AttachmentExtractor) player.extractors.register(AttachmentExtractor, {});
+	if (ReverbnationExtractor) player.extractors.register(ReverbnationExtractor, {});
+	
+	console.log('🎵 Loaded safe extractors: YouTube, Attachment, Reverbnation');
+} catch (error) {
+	console.log('⚠️ Falling back to filtered DefaultExtractors');
+	// Fallback: filter DefaultExtractors
+	const safeExtractors = DefaultExtractors.filter(extractor => {
+		const extractorName = extractor.name || extractor.constructor?.name || '';
+		return !extractorName.toLowerCase().includes('soundcloud');
+	});
+	player.extractors.loadMulti(safeExtractors);
+}
 
 // Debug
 if (config.DevConfig.DJS_DEBUG) client.on("debug", (m) => logger.debug(m));
