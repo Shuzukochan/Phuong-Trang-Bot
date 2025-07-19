@@ -178,26 +178,72 @@ async function handlePlayRequest(interaction, query, lang, options, queue) {
 	} catch (e) {
 		logger.error(`Error in handlePlayRequest: ${e.message}`);
 		
-		// Handle specific stream extraction errors
+		// Handle specific stream extraction errors with multiple fallback strategies
 		if (e.message?.includes("Could not extract stream") || e.message?.includes("NoResultError")) {
-			logger.warn("Stream extraction failed, trying alternative search");
+			logger.warn("Stream extraction failed, trying multiple fallback strategies");
+			
+			// Strategy 1: Try with "official" keyword
 			try {
-				// Retry with different search approach
-				const fallbackRes = await player.search(`${query} official`, { 
+				logger.info("Fallback 1: Adding 'official' keyword");
+				const fallbackRes1 = await player.search(`${query} official`, { 
 					requestedBy: interaction.user,
 					searchEngine: "youtube"
 				});
 				
-				if (fallbackRes.tracks?.length) {
-					await player.play(interaction.member.voice.channel, fallbackRes, {
+				if (fallbackRes1.tracks?.length) {
+					await player.play(interaction.member.voice.channel, fallbackRes1, {
 						nodeOptions: { ...playerConfig, metadata: await getQueueMetadata(queue, interaction, options, lang) },
 						requestedBy: interaction.user,
 					});
 					await cleanUpInteraction(interaction, queue);
+					logger.info("Fallback 1 successful");
 					return;
 				}
-			} catch (fallbackError) {
-				logger.error("Fallback search also failed:", fallbackError.message);
+			} catch (fallbackError1) {
+				logger.warn("Fallback 1 failed:", fallbackError1.message);
+			}
+			
+			// Strategy 2: Try simplified search query
+			try {
+				logger.info("Fallback 2: Simplified search query");
+				const words = query.split(' ').slice(0, 3).join(' '); // Take first 3 words
+				const fallbackRes2 = await player.search(words, { 
+					requestedBy: interaction.user,
+					searchEngine: "youtube"
+				});
+				
+				if (fallbackRes2.tracks?.length) {
+					await player.play(interaction.member.voice.channel, fallbackRes2, {
+						nodeOptions: { ...playerConfig, metadata: await getQueueMetadata(queue, interaction, options, lang) },
+						requestedBy: interaction.user,
+					});
+					await cleanUpInteraction(interaction, queue);
+					logger.info("Fallback 2 successful");
+					return;
+				}
+			} catch (fallbackError2) {
+				logger.warn("Fallback 2 failed:", fallbackError2.message);
+			}
+			
+			// Strategy 3: Try generic popular music if all fails
+			try {
+				logger.info("Fallback 3: Generic popular music");
+				const fallbackRes3 = await player.search("lofi hip hop", { 
+					requestedBy: interaction.user,
+					searchEngine: "youtube"
+				});
+				
+				if (fallbackRes3.tracks?.length) {
+					await player.play(interaction.member.voice.channel, fallbackRes3, {
+						nodeOptions: { ...playerConfig, metadata: await getQueueMetadata(queue, interaction, options, lang) },
+						requestedBy: interaction.user,
+					});
+					await cleanUpInteraction(interaction, queue);
+					logger.info("Fallback 3 successful - playing generic music");
+					return;
+				}
+			} catch (fallbackError3) {
+				logger.error("All fallback strategies failed:", fallbackError3.message);
 			}
 		}
 		

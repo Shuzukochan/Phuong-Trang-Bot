@@ -90,10 +90,10 @@ const player = new Player(client, {
 });
 
 player.setMaxListeners(100);
-if (config.DevConfig.YoutubeiExtractor) {
-	player.extractors.register(YoutubeiExtractor, {});
-	require("youtubei.js").Log.setLevel(0);
-}
+// Always enable YoutubeiExtractor for better YouTube support
+player.extractors.register(YoutubeiExtractor, {});
+require("youtubei.js").Log.setLevel(0);
+console.log('✅ Registered YoutubeiExtractor for better YouTube support');
 
 if (config.DevConfig.ShuzukoExtractor) player.extractors.register(ShuzukoExtractor, {});
 
