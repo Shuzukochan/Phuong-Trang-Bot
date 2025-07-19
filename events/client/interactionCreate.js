@@ -1,7 +1,8 @@
-const { Events, CommandInteraction, PermissionsBitField } = require("discord.js");
-const { useCooldowns, useCommands, useFunctions, useConfig } = require("@zibot/zihooks");
+﻿const { Events, CommandInteraction, PermissionsBitField, MessageFlags } = require("discord.js");
+const { useCooldowns, useCommands, useFunctions, useConfig, useLogger } = require("../../lib/hooks");
 const config = useConfig();
-
+const fs = require("fs");
+const path = require("path");
 const Cooldowns = useCooldowns();
 const Commands = useCommands();
 const Functions = useFunctions();
@@ -24,13 +25,27 @@ async function checkStatus(interaction, client, lang) {
 			return true;
 		}
 	}
+	// Check banned
+	const configPath = path.join(__dirname, "../../jsons/developer.json");
+	if (!fs.existsSync(configPath)) {
+		fs.writeFileSync(configPath, JSON.stringify({ bannedUsers: [] }, null, 4));
+	}
+	let devConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+	if (devConfig.bannedUsers.includes(interaction.user.id)) {
+		await interaction
+			.reply({
+				content: lang.until.banned,
+				flags: MessageFlags.Ephemeral,
+			})
+			.catch(() => {});
+		return true;
+	}
 
 	// Check owner
 	if (config.OwnerID.includes(interaction.user.id)) return false;
 
 	// Check modal
 	if (interaction.isModalSubmit()) return false;
-
 	// Check cooldown
 	const now = Date.now();
 	const cooldownDuration = config.defaultCooldownDuration ?? 3000;
@@ -38,13 +53,16 @@ async function checkStatus(interaction, client, lang) {
 
 	if (Cooldowns.has(interaction.user.id) && now < expirationTime) {
 		const expiredTimestamp = Math.round(expirationTime / 1_000);
-		await interaction.reply({
-			content: lang.until.cooldown.replace("{command}", interaction.commandName).replace("{time}", `<t:${expiredTimestamp}:R>`),
-			ephemeral: true,
-		});
+		await interaction
+			.reply({
+				content: lang.until.cooldown
+					.replace("{command}", interaction.commandName || interaction.customId)
+					.replace("{time}", `<t:${expiredTimestamp}:R>`),
+				ephemeral: true,
+			})
+			.catch(() => {});
 		return true;
 	}
-
 	// Set cooldown
 	Cooldowns.set(interaction.user.id, now);
 	setTimeout(() => Cooldowns.delete(interaction.user.id), cooldownDuration);
@@ -61,6 +79,7 @@ module.exports = {
  */
 module.exports.execute = async (interaction) => {
 	const { client, user } = interaction;
+	if (!client.isReady()) return;
 
 	let command;
 	let commandType;
@@ -81,7 +100,7 @@ module.exports.execute = async (interaction) => {
 	}
 
 	// Get the user's language preference
-	const langfunc = Functions.get("ZiRank");
+	const langfunc = Functions.get("ShuzukoRank");
 	const lang = await langfunc.execute({ user, XpADD: interaction.isAutocomplete() ? 0 : 1 });
 
 	// Try to execute the command and handle errors
@@ -89,6 +108,10 @@ module.exports.execute = async (interaction) => {
 		if (interaction.isAutocomplete()) {
 			await command.autocomplete({ interaction, lang });
 		} else {
+			useLogger().debug(
+				`Interaction received: ${interaction?.commandName || interaction?.customId} >> User: ${interaction?.user?.username} >> Guild: ${interaction?.guild?.name} (${interaction?.guildId})`,
+			);
+
 			const status = await checkStatus(interaction, client, lang);
 			if (status) return;
 
@@ -102,7 +125,7 @@ module.exports.execute = async (interaction) => {
 			content: "There was an error while executing this command!",
 			ephemeral: true,
 		};
-
+		if (interaction.isAutocomplete()) return;
 		if (interaction.replied || interaction.deferred) {
 			await interaction.followUp(response).catch(() => {});
 		} else {
@@ -110,3 +133,5 @@ module.exports.execute = async (interaction) => {
 		}
 	}
 };
+
+

@@ -211,7 +211,9 @@ async function getCachedImage(url) {
 		imageCache.set(url, image);
 		return image;
 	} catch {
-		const fallbackImage = await loadImage("https://raw.githubusercontent.com/zijipia/zijipia/main/Assets/image.png");
+		// Use a simple data URL as fallback (1x1 transparent pixel)
+		const fallbackDataURL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+		const fallbackImage = await loadImage(fallbackDataURL);
 		imageCache.set(url, fallbackImage);
 		return fallbackImage;
 	}

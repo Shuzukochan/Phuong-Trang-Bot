@@ -1,5 +1,5 @@
-const { useQueue } = require("discord-player");
-const { useFunctions, useDB } = require("@zibot/zihooks");
+﻿const { useQueue } = require("discord-player");
+const { useFunctions, useDB } = require("../../lib/hooks");
 
 module.exports.data = {
 	name: "volume",
@@ -34,10 +34,12 @@ module.exports.execute = async ({ interaction, lang }) => {
 	await interaction.deleteReply().catch((e) => {});
 	const DataBase = useDB();
 	if (DataBase) {
-		await DataBase.ZiUser.updateOne({ userID: interaction.user.id }, { $set: { volume: volume }, $upsert: true });
+		await DataBase.ShuzukoUser.updateOne({ userID: interaction.user.id }, { $set: { volume: volume }, $upsert: true });
 	}
 	const player = useFunctions().get("player_func");
 	if (!player) return;
 	const res = await player.execute({ queue });
 	return queue.metadata.mess.edit(res);
 };
+
+

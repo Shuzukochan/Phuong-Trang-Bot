@@ -1,56 +1,70 @@
 {
-	"name": "ziji-bot-discord",
-	"version": "2.1.5",
-	"description": "Ziji bot discord",
+	"name": "phuong-trang-bot",
+	"version": "1.0.0",
+	"description": "Phuong Trang Discord Bot",
 	"main": "index.js",
 	"scripts": {
-		"start": "node index.js",
-		"dev": "nodemon index.js",
+		"start": "cross-env NODE_ENV=production node index.js",
+		"dev": "cross-env NODE_ENV=development nodemon index.js",
 		"deploy": "node ./deploy.js",
-		"test": "echo \"Error: no test specified\" && exit 1",
+		"test": "node test-firebase.js",
+		"test-firebase": "node test-firebase.js",
 		"check": "prettier --ignore-path .gitignore --check .",
 		"format": "prettier --ignore-path .gitignore --write ."
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/zijipia/Ziji-bot-discord.git"
+		"url": ""
 	},
 	"keywords": [
-		"ziji",
-		"ziji-bot-discord",
-		"zibot"
+		"phuong-trang",
+		"discord",
+		"bot"
 	],
-	"author": "Ziji",
+	"author": "Phuong Trang",
 	"license": "ISC",
 	"bugs": {
-		"url": "https://github.com/zijipia/Ziji-bot-discord/issues"
+		"url": ""
 	},
-	"homepage": "https://github.com/zijipia/Ziji-bot-discord#readme",
+	"homepage": "",
 	"dependencies": {
-		"@discord-player/extractor": "^4.5.0",
+		"@discord-player/extractor": "^7.1.0",
+		"@discordjs/voice": "^0.18.0",
+		"@google/generative-ai": "^0.24.0",
 		"@iamtraction/google-translate": "^2.0.1",
-		"@zibot/ziextractor": "^2.2.0",
-		"@zibot/zihooks": "^1.0.6",
 		"axios": "^1.7.7",
+		"bgutils-js": "^3.2.0",
 		"canvacord": "^6.0.2",
 		"chalk": "^4.1.2",
+		"cors": "^2.8.5",
+		"discord-gamecord": "^4.4.2",
 		"discord-giveaways": "^6.0.1",
-		"discord-player": "^6.7.1",
-		"discord-player-youtubei": "^1.3.2",
-		"discord.js": "^14.15.3",
-		"dotenv": "^16.4.5",
+		"discord-player": "^7.1.0",
+		"discord-player-youtubei": "^1.4.2",
+		"discord.js": "^14.18.0",
+		"dotenv": "^17.0.0",
+		"express": "^5.1.0",
 		"ffmpeg-static": "^5.2.0",
-		"mediaplex": "^0.0.9",
-		"mongoose": "^8.8.3",
+		"firebase": "^12.0.0",
+		"firebase-admin": "^13.4.0",
+		"http": "^0.0.1-security",
+		"makeitaquote": "^8.1.1",
+		"mediaplex": "^1.0.0",
+		"ngrok": "^5.0.0-beta.2",
+		"node-cron": "^4.1.0",
 		"node-fetch": "^2.7.0",
-		"opusscript": "^0.0.8",
 		"prism-media": "^1.3.5",
-		"sharp": "^0.33.4",
-		"table": "^6.8.2"
+		"readline": "^1.3.0",
+		"sharp": "^0.34.0",
+		"simple-git": "^3.27.0",
+		"table": "^6.8.2",
+		"txtgen": "^3.0.7",
+		"winston": "^3.17.0",
+		"ws": "^8.18.0"
 	},
 	"devDependencies": {
-		"nodemon": "^3.1.0",
+		"cross-env": "^7.0.3",
+		"nodemon": "^3.1.9",
 		"prettier": "^3.3.2"
-	},
-	"overrides": {}
+	}
 }

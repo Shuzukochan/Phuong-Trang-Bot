@@ -1,4 +1,4 @@
-const config = require("@zibot/zihooks").useConfig();
+﻿const config = require("../../lib/hooks").useConfig();
 
 module.exports.data = {
 	name: "listservers",
@@ -37,3 +37,4 @@ module.exports.execute = async ({ interaction, lang }) => {
 
 	await interaction.editReply({ embeds: [embed] });
 };
+

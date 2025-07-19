@@ -1,4 +1,4 @@
-const { useFunctions } = require("@zibot/zihooks");
+﻿const { useFunctions } = require("../../lib/hooks");
 
 module.exports.data = {
 	name: "lyrics",
@@ -32,3 +32,4 @@ module.exports.execute = async ({ interaction, lang }) => {
 	await Lyrics.execute(interaction, { type: "plainLyrics", query, lang });
 	return;
 };
+

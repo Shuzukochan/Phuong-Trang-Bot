@@ -1,4 +1,4 @@
-const { useFunctions } = require("@zibot/zihooks");
+﻿const { useFunctions } = require("../../lib/hooks");
 const { useQueue } = require("discord-player");
 
 module.exports.data = {
@@ -37,3 +37,4 @@ module.exports.execute = async ({ interaction, lang }) => {
 	await Lyrics.execute(interaction, { type: "syncedLyrics", query, lang });
 	return;
 };
+

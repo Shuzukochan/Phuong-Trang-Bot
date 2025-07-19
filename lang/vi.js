@@ -1,4 +1,4 @@
-const config = require("@zibot/zihooks").useConfig();
+const config = require("../lib/hooks").useConfig();
 module.exports = {
 	name: "vi",
 	local_names: "vi_VN",
@@ -11,11 +11,13 @@ module.exports = {
 		noDB: "❌ | Database chưa được bật, vui lòng liên hệ với dev bot",
 		success: "Đã thực hiện lệnh này thành công!",
 		notHavePremission: "Bạn không có quyền để thực hiện lệnh này!",
+		botNOPermission: "❌ | Bot không có quyền: {Permission} để thực hiện lệnh này!",
 		NOPermission: "❌ | Bot không có quyền gửi tin nhắn và thực hiện lệnh trong kênh này",
 		noPermission: "❌ | Bạn không có quyền để thực hiện lệnh này!",
 		cooldown: "Vui lòng đợi, bạn đang trong thời gian cooldown cho `{command}`! Bạn có thể sử dụng nó lại {time}.",
 		goodbye: "Tạm biệt",
 		noresult: "❌ | Không tìm thấy kết quả",
+		banned: "❌ | Bạn đã bị cấm sử dụng bot. Vui lòng liên hệ nhà phát triển để biết thêm thông tin",
 	},
 	Help: {
 		Placeholder: "> | Chọn một danh mục để xem các lệnh",
@@ -41,6 +43,13 @@ module.exports = {
 		Voice: "Đã kết nối voice",
 		Command: "Số lượng lệnh",
 		Operation: "Thời gian chạy",
+	},
+	TicTacToe: {
+		turnMessage: "{emoji} | Đến lượt của người chơi **{player}**.",
+		winMessage: "{emoji} | **{player}** đã thắng trò chơi TicTacToe.",
+		tieMessage: "Trò chơi hòa! Không ai thắng!",
+		timeoutMessage: "Trò chơi bị bỏ dở! Không ai thắng!",
+		playerOnlyMessage: "Chỉ {player} và {opponent} mới có thể sử dụng các nút này.",
 	},
 	Ping: {
 		Description: "Chào ##username##! Đây là **độ trễ** và trạng thái **ping** của tôi:",
@@ -118,6 +127,8 @@ module.exports = {
 			Lyrics: "Lời bài hát",
 			UnLock: "Mở khoá",
 			Unmute: "Mở khoá âm lượng",
+			Save: "Lưu toàn bộ bài hát trong hàng đợi hiện tại",
+			Link: "Hiển thị liên kết đến bài hát",
 		},
 	},
 	weather: {
@@ -168,5 +179,11 @@ module.exports = {
 		no_res: "❌ | Không tìm thấy lời bài hát!",
 		input_name: "Nhập tên bài hát",
 		disable_slrc: "Tắt syncedLyrics",
+	},
+	RankSystem: {
+		hexCOLOR: "Mã màu HEX (VD: #FF0000)",
+		canLv2: "❌ | Bạn cần đạt cấp độ 2 để sử dụng lệnh này",
+		editOK: "✅ | Đã cập nhật thành công",
+		editNG: "❌ | Không thể cập nhật thông tin người dùng",
 	},
 };

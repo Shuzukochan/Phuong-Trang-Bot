@@ -2,7 +2,7 @@ const { table } = require("table");
 const fs = require("fs").promises;
 const chalk = require("chalk");
 const path = require("node:path");
-const config = require("@zibot/zihooks").useConfig();
+const config = require("../lib/hooks").useConfig();
 
 // Hàm loadFiles để tải các file lệnh từ thư mục chỉ định
 const loadFiles = async (directory, collection) => {
@@ -125,7 +125,16 @@ const loadEvents = async (directory, target) => {
 	);
 };
 
+function createfile(dir) {
+	const fs = require("fs");
+
+	if (!fs.existsSync(dir)) {
+		fs.mkdirSync(dir);
+	}
+}
+
 module.exports = {
 	loadFiles,
 	loadEvents,
+	createfile,
 };

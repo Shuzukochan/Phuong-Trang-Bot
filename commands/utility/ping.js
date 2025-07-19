@@ -1,5 +1,7 @@
+﻿const { default: axios } = require("axios");
+const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
 const { EmbedBuilder } = require("discord.js");
-const config = require("@zibot/zihooks").useConfig();
+const config = require("../../lib/hooks").useConfig();
 
 module.exports.data = {
 	name: "ping",
@@ -18,11 +20,12 @@ module.exports.data = {
 
 module.exports.execute = async ({ interaction, lang }) => {
 	try {
-		const initialResponse = await interaction.reply({ content: "🏓 Pinging...", fetchReply: true });
+		const initialResponse = await interaction.reply({ content: "🏓 Pinging...", withResponse: true });
 
-		const roundTripLatency = initialResponse.createdTimestamp - interaction.createdTimestamp;
+		const roundTripLatency = initialResponse.resource.message.createdTimestamp - interaction.createdTimestamp;
 		const botPing = interaction.client.ws.ping;
-
+		const req = await axios.get(`http://127.0.0.1:${process.env.SERVER_PORT || 2003}`);
+		const webPing = req.data.status;
 		const latencyStatus =
 			botPing > 200 ? lang?.Ping?.Poor || " "
 			: botPing > 100 ? lang?.Ping?.Good || " "
@@ -35,6 +38,7 @@ module.exports.execute = async ({ interaction, lang }) => {
 			.addFields(
 				{ name: lang?.Ping?.Roundtrip || " ", value: `${roundTripLatency}ms`, inline: true },
 				{ name: lang?.Ping?.Websocket || " ", value: `${botPing}ms`, inline: true },
+				{ name: "🌏 Web Control", value: `${webPing === "OK" ? "🟢 Working" : "🔴 Offline"}`, inline: true },
 				{ name: lang?.Ping?.Latency || " ", value: latencyStatus, inline: true },
 				{
 					name: lang?.Ping?.Timestamp || " ",
@@ -50,6 +54,26 @@ module.exports.execute = async ({ interaction, lang }) => {
 				iconURL: interaction.user.displayAvatarURL({ size: 1024 }),
 			});
 
+		if (config?.webAppConfig?.enabled) {
+			const status = new ButtonBuilder()
+				.setLabel("Status")
+				.setEmoji("1254203682686373938")
+				.setStyle(ButtonStyle.Link)
+				.setURL(config.webAppConfig?.statusUrl);
+			const music = new ButtonBuilder()
+				.setLabel("Music Controller")
+				.setEmoji("1254203682686373938")
+				.setStyle(ButtonStyle.Link)
+				.setURL(config.webAppConfig?.musicControllerUrl);
+			const dashboard = new ButtonBuilder()
+				.setLabel("Dashboard")
+				.setEmoji("1254203682686373938")
+				.setStyle(ButtonStyle.Link)
+				.setURL(config.webAppConfig?.dashboardUrl);
+			const row = new ActionRowBuilder().addComponents(status, music, dashboard);
+			await interaction.editReply({ content: null, embeds: [informationEmbed], components: [row] });
+			return;
+		}
 		await interaction.editReply({ content: null, embeds: [informationEmbed] });
 	} catch (error) {
 		console.error("Error executing ping command:", error);
@@ -59,3 +83,4 @@ module.exports.execute = async ({ interaction, lang }) => {
 		});
 	}
 };
+

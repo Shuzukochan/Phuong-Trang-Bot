@@ -1,5 +1,5 @@
-const { useQueue } = require("discord-player");
-const { useFunctions } = require("@zibot/zihooks");
+﻿const { useQueue } = require("discord-player");
+const { useFunctions } = require("../../lib/hooks");
 
 module.exports.data = {
 	name: "B_player_pause",
@@ -36,3 +36,4 @@ module.exports.execute = async ({ interaction, lang }) => {
 	const res = await player.execute({ queue });
 	queue.metadata.mess.edit(res);
 };
+

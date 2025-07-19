@@ -1,6 +1,6 @@
-const { useMainPlayer, QueryType } = require("discord-player");
-const { useFunctions } = require("@zibot/zihooks");
-
+﻿const { useMainPlayer, QueryType, GuildQueue } = require("discord-player");
+const { useFunctions } = require("../../lib/hooks");
+const config = require("../../lib/hooks").useConfig();
 const player = useMainPlayer();
 const {
 	Client,
@@ -49,6 +49,7 @@ const getQueryTypeIcon = (type, raw) => {
 		case QueryType.YOUTUBE_PLAYLIST:
 		case QueryType.YOUTUBE_SEARCH:
 		case QueryType.YOUTUBE_VIDEO:
+		case "ZiPlayer": //voice join
 			return ZiIcons.youtubeIconURL;
 		case QueryType.SPOTIFY_ALBUM:
 		case QueryType.SPOTIFY_PLAYLIST:
@@ -79,7 +80,7 @@ module.exports = {
 	execute: async ({ queue, tracks }) => {
 		const track = tracks ?? queue?.currentTrack ?? queue?.history?.previousTrack;
 		const requestedBy = track?.requestedBy ?? queue.metadata.requestedBy;
-		const langfunc = useFunctions().get("ZiRank");
+		const langfunc = useFunctions().get("ShuzukoRank");
 		const lang = await langfunc.execute({ user: requestedBy, XpADD: 0 });
 		const queryTypeIcon = getQueryTypeIcon(track?.queryType, track?.raw);
 		const timestamps = queue?.node.getTimestamp();
@@ -88,14 +89,14 @@ module.exports = {
 
 		const embed = new EmbedBuilder()
 			.setAuthor({
-				name: `${track?.title}`,
+				name: `${track?.author} - ${track?.title}`.slice(0, 256),
 				iconURL: `${queryTypeIcon}`,
 				url: track?.url,
 			})
 			.setDescription(
-				`Volume: **${queue.node.volume}** % - Playing:  **${trackDuration}**${trackDurationSymbol} - Host: ${queue.metadata.requestedBy} <a:_:${
+				`Volume: **${queue.node.volume}** % - Playing: **${trackDuration}${trackDurationSymbol}** - Host: ${queue.metadata.requestedBy} <a:_:${
 					ZiIcons.animatedIcons[Math.floor(Math.random() * ZiIcons.animatedIcons.length)]
-				}>`,
+				}>${config.webAppConfig?.musicControllerUrl ? `\n[Click to launch music controller](${config.webAppConfig.musicControllerUrl})` : ""}`,
 			)
 			.setColor(lang?.color || "Random")
 			.setFooter({
@@ -109,6 +110,10 @@ module.exports = {
 			embed.setThumbnail(track?.thumbnail);
 		}
 
+		if (track?.queryType === "tts") {
+			embed.setDescription(`* ${player.client.user.username}:\n${track?.raw?.["full context"]}`);
+			return { content: "", embeds: [embed], components: [] };
+		}
 		const code = { content: "" };
 		const relatedTracks = await getRelatedTracks(track, queue.history);
 		const filteredTracks = relatedTracks.filter((t) => t.url.length < 100).slice(0, 20);
@@ -125,7 +130,7 @@ module.exports = {
 			new StringSelectMenuOptionBuilder()
 				.setLabel("No Track")
 				.setDescription(`XX:XX`)
-				.setValue(`Ziji Bot`)
+				.setValue(`Phuong Trang Bot`)
 				.setEmoji(`${ZiIcons.Playbutton}`),
 		];
 
@@ -221,6 +226,12 @@ module.exports = {
 					Value: "Fillter",
 					Emoji: ZiIcons.fillter,
 				},
+				{
+					Label: "Save",
+					Description: lang?.playerFunc?.Fields?.Save || "Save current queue",
+					Value: "Save",
+					Emoji: ZiIcons.save,
+				},
 			];
 
 			const filteredFunctions = functions.filter((f) => {
@@ -315,3 +326,5 @@ module.exports = {
 		return code;
 	},
 };
+
+

@@ -1,6 +1,6 @@
-const { EmbedBuilder, Routes } = require("discord.js");
+﻿const { EmbedBuilder, Routes } = require("discord.js");
 const ZiIcons = require("../../utility/icon.js");
-const config = require("@zibot/zihooks").useConfig();
+const config = require("../../lib/hooks").useConfig();
 
 module.exports.data = {
 	name: "S_Help",
@@ -179,3 +179,4 @@ module.exports.commands = async (interaction) => {
 	const contextCommands = commands.filter((cmd) => cmd.type === 3);
 	return { guildCommands, contextCommands };
 };
+

@@ -1,8 +1,9 @@
 const { Events, Client, ActivityType } = require("discord.js");
 const config = require("../../config");
 const deploy = require("../../startup/deploy");
-const mongoose = require("mongoose");
-const { useDB } = require("@zibot/zihooks");
+// Using Firebase Firestore as database
+const { useDB, useLogger, setDB } = require("../../lib/hooks");
+const { Database, createModel, connectDB } = require("../../lib/firebase");
 
 module.exports = {
 	name: Events.ClientReady,
@@ -26,38 +27,47 @@ module.exports = {
 					}
 				}
 			} catch (error) {
-				console.error("Lỗi khi gửi tin nhắn lỗi:", error);
+				useLogger().error("Lỗi khi gửi tin nhắn lỗi:", error);
 			}
 		};
 
-		// Use Promise.all to handle MongoDB connection and deployment concurrently
-		const [deployResult, mongoConnected] = await Promise.all([
+		// Use Promise.all to handle Firebase connection and deployment concurrently
+		const [deployResult] = await Promise.all([
 			config?.deploy ? deploy(client).catch(() => null) : null,
-			mongoose.connect(process.env.MONGO).catch(() => false),
 		]);
 
-		if (mongoConnected) {
-			useDB(require("../../startup/mongoDB"));
+		// Try to connect to Firebase
+		try {
+			const database = await connectDB();
+			setDB(database);
 			await require("../../startup/loadResponder")();
-			console.log("Connected to MongoDB!");
-			client.errorLog("Connected to MongoDB!");
-		} else {
-			console.error("Failed to connect to MongoDB!");
-			client.errorLog("Failed to connect to MongoDB!");
+			await require("../../startup/loadWelcome")();
+			await require("../../startup/initAI")();
+
+			useLogger().info("Connected to Firebase Firestore!");
+			client.errorLog("Connected to Firebase Firestore!");
+		} catch (error) {
+			useLogger().error("Failed to connect to Firebase!", error.message);
+			// Use fallback database models
+			setDB(Database);
+			await require("../../startup/loadResponder")();
+			await require("../../startup/loadWelcome")();
+			await require("../../startup/initAI")();
+			useLogger().info("Connected to Fallback Database!");
+			client.errorLog("Connected to Fallback Database!");
 		}
 
 		// Set Activity status
 		client.user.setStatus(config?.botConfig?.Status || "online");
 		client.user.setActivity({
-			name: config?.botConfig?.ActivityName || "ziji",
+							name: config?.botConfig?.ActivityName || "Phuong Trang",
 			type: ActivityType[config?.botConfig?.ActivityType] || ActivityType.Playing,
 			timestamps: {
 				start: Date.now(),
 			},
 		});
 
-		// Log the bot's readiness
-		console.log(`Ready! Logged in as ${client.user.tag}`);
+		useLogger().info(`Ready! Logged in as ${client.user.tag}`);
 		client.errorLog(`Ready! Logged in as ${client.user.tag}`);
 	},
 };

@@ -1,3 +1,4 @@
+﻿const { useLogger } = require("../../lib/hooks");
 const { Events } = require("discord.js");
 
 module.exports = {
@@ -8,6 +9,7 @@ module.exports = {
 	 * @param { Error } error
 	 */
 	execute: async (error) => {
-		console.log(error.message);
+		useLogger().error(error.message);
 	},
 };
+

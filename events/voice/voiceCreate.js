@@ -1,21 +1,29 @@
-const { useMainPlayer, useQueue } = require("discord-player");
-const { useFunctions } = require("@zibot/zihooks");
+﻿const { useMainPlayer, useQueue, Track } = require("discord-player");
+const { useFunctions, useAI } = require("../../lib/hooks");
 const Functions = useFunctions();
 
 async function Update_Player(queue) {
-	const player = Functions.get("player_func");
-	if (!player) return;
-	const res = await player.execute({ queue });
+	const player_func = Functions.get("player_func");
+	if (!player_func) return;
+	const res = await player_func.execute({ queue });
 	queue.metadata.mess.edit(res);
 }
+
 module.exports = {
 	name: "voiceCreate",
 	type: "voiceExtractor",
-	execute: async ({ content, channel, client }) => {
+	enable: false, //v7 not support
+
+	/**
+	 *
+	 * @param { object } param0 - voice Create event
+	 * @param { import ("discord.js").User } param0.user - user who created the voice channel
+	 */
+	execute: async ({ content, user, channel }) => {
 		const player = useMainPlayer();
 		const lowerContent = content.toLowerCase();
+		console.log(lowerContent);
 		const queue = useQueue(channel.guild);
-		if (!queue) return;
 
 		const commands = {
 			"skip|bỏ qua|next": () => {
@@ -68,9 +76,28 @@ module.exports = {
 
 		for (const [pattern, action] of Object.entries(commands)) {
 			if (lowerContent.match(new RegExp(pattern))) {
+				if (!queue) continue;
 				await action();
-				break;
+				return;
 			}
+		}
+
+		const aifunc = await Functions.get("runVoiceAI");
+		if (aifunc.checkStatus) {
+			const result = await useAI().run(lowerContent, user);
+
+			const tts = await Functions.get("TextToSpeech");
+			await tts.execute(
+				{
+					client: player.client,
+					guild: channel.guild,
+					user,
+				},
+				result,
+				queue?.metadata?.lang,
+				{ queue, title: lowerContent, voice: channel, old_Prompt: res.old_Prompt },
+			);
 		}
 	},
 };
+

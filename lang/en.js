@@ -1,4 +1,4 @@
-const config = require("@zibot/zihooks").useConfig();
+const config = require("../lib/hooks").useConfig();
 module.exports = {
 	name: "en",
 	local_names: "en_US",
@@ -11,11 +11,13 @@ module.exports = {
 		langChange: "Your language has been changed to:",
 		requestBy: "Requested by:",
 		noDB: "❌ | Database is not currently enabled, please contact dev bot",
+		botNOPermission: "❌ | Bot does not have permission: {Permission} to execute this command!",
 		NOPermission: "❌ | Bot does not have permission to chat and execute command in this channel",
 		noPermission: "❌ | You do not have permission to execute this command!",
 		cooldown: "Please wait, you are on a cooldown for `{command}`! You can use it again {time}.",
 		goodbye: "Goodbye",
 		noresult: "❌ | No result",
+		banned: "❌ | You are banned from using the bot. Please contact developers for more details",
 	},
 	BotStats: {
 		Description: "Bot stats",
@@ -41,6 +43,13 @@ module.exports = {
 		VoiceCommandsDescription: "View the list of commands that can be used by voice",
 		Attention: "Attention:",
 		Note: "Note:",
+	},
+	TicTacToe: {
+		turnMessage: "{emoji} | Its turn of player **{player}**.",
+		winMessage: "{emoji} | **{player}** won the TicTacToe Game.",
+		tieMessage: "The Game tied! No one won the Game!",
+		timeoutMessage: "The Game went unfinished! No one won the Game!",
+		playerOnlyMessage: "Only {player} and {opponent} can use these buttons.",
 	},
 	Ping: {
 		Description: "Hey ##username##! Here's my **latency** and **ping** status:",
@@ -118,6 +127,8 @@ module.exports = {
 			Lyrics: "Show lyrics",
 			UnLock: "UnLock",
 			Unmute: "Unmute",
+			Save: "Save current queue",
+			Link: "Display some link about this music",
 		},
 	},
 	weather: {
@@ -168,5 +179,11 @@ module.exports = {
 		no_res: "❌ | No Lyrics Found!",
 		input_name: "Input Lyrics Name",
 		disable_slrc: "Disable syncedLyrics",
+	},
+	RankSystem: {
+		hexCOLOR: "HEX color code (e.g. #FF0000)",
+		canLv2: "❌ | You need to reach level 2 to use this command",
+		editOK: "✅ | Successfully updated",
+		editNG: "❌ | Cannot update user information",
 	},
 };

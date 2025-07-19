@@ -1,4 +1,4 @@
-const {
+﻿const {
 	EmbedBuilder,
 	ActionRowBuilder,
 	ButtonBuilder,
@@ -7,13 +7,13 @@ const {
 	ButtonStyle,
 } = require("discord.js");
 const ZiIcons = require("./../../utility/icon");
-const config = require("@zibot/zihooks").useConfig();
+const config = require("../../lib/hooks").useConfig();
 
 const { Worker } = require("worker_threads");
 
 async function buildImageInWorker(searchPlayer, query) {
 	return new Promise((resolve, reject) => {
-		const worker = new Worker("./utility/worker.js", {
+		const worker = new Worker("./utility/musicImage.js", {
 			workerData: { searchPlayer, query },
 		});
 
@@ -152,3 +152,4 @@ module.exports.data = {
 	type: "player",
 };
 //Page: 3 / 10
+

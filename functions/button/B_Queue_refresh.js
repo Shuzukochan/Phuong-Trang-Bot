@@ -1,5 +1,5 @@
-const { useQueue } = require("discord-player");
-const { useFunctions } = require("@zibot/zihooks");
+﻿const { useQueue } = require("discord-player");
+const { useFunctions } = require("../../lib/hooks");
 
 module.exports.data = {
 	name: "B_queue_refresh",
@@ -19,3 +19,4 @@ module.exports.execute = async ({ interaction, lang }) => {
 	QueueTrack.execute(interaction, queue, true);
 	return;
 };
+

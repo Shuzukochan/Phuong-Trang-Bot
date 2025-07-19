@@ -1,5 +1,5 @@
-const { useMainPlayer, useQueue } = require("discord-player");
-const { useFunctions, useConfig } = require("@zibot/zihooks");
+﻿const { useMainPlayer, useQueue, QueryType } = require("discord-player");
+const { useFunctions, useConfig } = require("../../lib/hooks");
 const player = useMainPlayer();
 const config = useConfig();
 
@@ -33,6 +33,11 @@ module.exports.data = {
 					required: true,
 					type: 3,
 					autocomplete: true,
+				},
+				{
+					name: "focus",
+					description: "Chỉ nghe lệnh người yêu cầu.",
+					type: 5, //BOOLEAN
 				},
 			],
 		},
@@ -69,7 +74,7 @@ module.exports.execute = async ({ interaction, lang }) => {
 		const queue = useQueue(interaction.guild.id);
 
 		if (queue) {
-			const res = await player.search(query, { fallbackSearchEngine: "youtube" });
+			const res = await player.search(query, { searchEngine: config.PlayerConfig.QueryType });
 			const track = res.tracks?.[0];
 
 			if (track) {
@@ -82,7 +87,8 @@ module.exports.execute = async ({ interaction, lang }) => {
 			await command.execute(interaction, query, lang);
 		}
 	} else if (commandtype === "assistant") {
-		await command.execute(interaction, query, lang, { assistant: true });
+		const focus = interaction.options.getBoolean("focus") ? interaction.user.id : null;
+		await command.execute(interaction, query, lang, { assistant: true, focus });
 	} else {
 		await command.execute(interaction, query, lang);
 	}
@@ -101,7 +107,8 @@ module.exports.autocomplete = async ({ interaction, lang }) => {
 		if (!query) return;
 
 		const results = await player.search(query, {
-			fallbackSearchEngine: config.PlayerConfig.QueryType,
+			fallbackSearchEngine: QueryType.SOUNDCLOUD,
+			searchEngine: config.PlayerConfig.QueryType,
 		});
 
 		const tracks = results.tracks
@@ -110,9 +117,10 @@ module.exports.autocomplete = async ({ interaction, lang }) => {
 
 		if (!tracks.length) return;
 
-		await interaction.respond(tracks.map((t) => ({ name: t.title, value: t.url }))).catch(() => {});
+		await interaction.respond(tracks.map((t) => ({ name: `${t.author} - ${t.title}`, value: t.url }))).catch(() => {});
 		return;
 	} catch (e) {
 		return;
 	}
 };
+
