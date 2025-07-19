@@ -1,6 +1,19 @@
 const { createAudioPlayer, createAudioResource, joinVoiceChannel, AudioPlayerStatus } = require('@discordjs/voice');
 const { useMainPlayer } = require('discord-player');
-const logger = require('../../startup/logger');
+
+// Fix logger import with fallback
+let logger;
+try {
+    logger = require('../../startup/logger');
+} catch (e) {
+    // Fallback logger if startup/logger not found
+    logger = {
+        info: console.log,
+        warn: console.warn,
+        error: console.error,
+        debug: console.log
+    };
+}
 
 class EmergencyPlayer {
     constructor() {
@@ -20,12 +33,12 @@ class EmergencyPlayer {
             
             const player = useMainPlayer();
             
-            // Try with minimal discord-player setup using known working streams
+            // Try with SoundCloud-based emergency streams
             const emergencyQueries = [
-                'lofi hip hop beats to relax study to',
-                'ambient music for relaxation',
-                'piano music peaceful',
-                'acoustic guitar peaceful'
+                'chillhop music soundcloud',
+                'ambient electronic soundcloud',
+                'piano ambient soundcloud',
+                'lofi beats soundcloud'
             ];
 
             // Get or create voice connection
@@ -53,9 +66,9 @@ class EmergencyPlayer {
                 try {
                     logger.info(`EmergencyPlayer: Attempt ${i + 1} - searching "${emergencyQuery}"`);
                     
-                    // Use existing player with minimal config
+                    // Use existing player with SoundCloud config
                     const searchResult = await player.search(emergencyQuery, {
-                        searchEngine: 'youtube',
+                        searchEngine: 'soundcloud',
                         requestedBy: options.requestedBy
                     });
                     

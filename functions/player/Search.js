@@ -148,16 +148,16 @@ async function handlePlayRequest(interaction, query, lang, options, queue) {
 			return joinVoiceChannel(interaction, queue, playerConfig, options, lang);
 		}
 
-		// Search with YouTube priority to avoid SoundCloud issues on Linux
+		// Switch to SoundCloud priority - YouTube may be blocked on server
 		const configSettings = useConfig().PlayerConfig;
 		const searchOptions = { 
 			requestedBy: interaction.user,
-			searchEngine: configSettings.QueryType || "youtube"
+			searchEngine: configSettings.QueryType || "soundcloud"
 		};
 		
-		// Force disable SoundCloud if configured
-		if (configSettings.disableSoundCloud) {
-			searchOptions.searchEngine = "youtube";
+		// Force enable SoundCloud (YouTube issues on Linux server)
+		if (configSettings.disableSoundCloud === false) {
+			searchOptions.searchEngine = "soundcloud";
 		}
 		
 		const res = await player.search(query, searchOptions);
@@ -226,7 +226,7 @@ async function handlePlayRequest(interaction, query, lang, options, queue) {
 				logger.info("Fallback 1: Adding 'official' keyword");
 				const fallbackRes1 = await player.search(`${query} official`, { 
 					requestedBy: interaction.user,
-					searchEngine: "youtube"
+					searchEngine: "soundcloud"
 				});
 				
 				if (fallbackRes1.tracks?.length) {
@@ -248,7 +248,7 @@ async function handlePlayRequest(interaction, query, lang, options, queue) {
 				const words = query.split(' ').slice(0, 3).join(' '); // Take first 3 words
 				const fallbackRes2 = await player.search(words, { 
 					requestedBy: interaction.user,
-					searchEngine: "youtube"
+					searchEngine: "soundcloud"
 				});
 				
 				if (fallbackRes2.tracks?.length) {
@@ -290,9 +290,9 @@ async function handlePlayRequest(interaction, query, lang, options, queue) {
 			// Strategy 4: Generic popular music as last resort
 			try {
 				logger.info("Fallback 4: Generic popular music (last resort)");
-				const fallbackRes4 = await player.search("lofi hip hop", { 
+				const fallbackRes4 = await player.search("chillhop soundcloud", { 
 					requestedBy: interaction.user,
-					searchEngine: "youtube"
+					searchEngine: "soundcloud"
 				});
 				
 				if (fallbackRes4.tracks?.length) {

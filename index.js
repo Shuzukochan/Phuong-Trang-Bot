@@ -127,14 +127,15 @@ player.extractors.register(TextToSpeech, {});
 // Filter DefaultExtractors to exclude SoundCloud (safer approach)
 console.log('🎵 Filtering DefaultExtractors to exclude SoundCloud...');
 
+// Switch to SoundCloud-first strategy - YouTube may be blocked on server
 const safeExtractors = DefaultExtractors.filter(extractor => {
 	try {
-		// Check extractor name/identifier to exclude SoundCloud
 		const extractorName = extractor.identifier || extractor.name || '';
-		const isExcluded = extractorName.toLowerCase().includes('soundcloud');
+		const extractorLower = extractorName.toLowerCase();
 		
-		if (isExcluded) {
-			console.log(`❌ Excluded: ${extractorName}`);
+		// Prioritize SoundCloud and exclude YouTube if having issues
+		if (extractorLower.includes('youtube')) {
+			console.log(`❌ Excluded: ${extractorName} (YouTube may be blocked)`);
 			return false;
 		}
 		
@@ -146,7 +147,7 @@ const safeExtractors = DefaultExtractors.filter(extractor => {
 	}
 });
 
-console.log(`🎵 Loading ${safeExtractors.length} safe extractors (excluded SoundCloud)`);
+console.log(`🎵 Loading ${safeExtractors.length} safe extractors (prioritizing SoundCloud)`);
 player.extractors.loadMulti(safeExtractors);
 
 // Debug

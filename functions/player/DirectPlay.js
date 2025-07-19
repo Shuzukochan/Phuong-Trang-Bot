@@ -20,12 +20,12 @@ class DirectYouTubePlayer {
         try {
             logger.info(`DirectPlay: Attempting to play "${query}"`);
             
-            // Try multiple search strategies for better results
+            // Try multiple search strategies with SoundCloud priority
             const searchStrategies = [
-                { query: query, engine: 'youtube' },
-                { query: `${query} official`, engine: 'youtube' },
-                { query: query.split(' ').slice(0, 3).join(' '), engine: 'youtube' },
-                { query: 'lofi hip hop', engine: 'youtube' } // Last resort
+                { query: query, engine: 'soundcloud' },
+                { query: `${query} remix`, engine: 'soundcloud' },
+                { query: query.split(' ').slice(0, 3).join(' '), engine: 'soundcloud' },
+                { query: 'chillhop electronic music', engine: 'soundcloud' } // Last resort
             ];
             
             for (let i = 0; i < searchStrategies.length; i++) {

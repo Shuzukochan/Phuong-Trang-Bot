@@ -46,21 +46,21 @@ async function testCompleteSystem() {
             }
         }
         
-        console.log('\n🔍 Testing Music Search Strategies:');
+        console.log('\n🔍 Testing SoundCloud Music Search Strategies:');
         
         const testQueries = [
-            'Dương Domic Mất Kết Nối',
-            'lofi hip hop',
-            'acoustic guitar',
-            'piano music peaceful'
+            'electronic music soundcloud',
+            'chillhop soundcloud',
+            'ambient soundcloud',
+            'piano lofi soundcloud'
         ];
         
         for (const query of testQueries) {
-            console.log(`\n🎵 Testing: "${query}"`);
+            console.log(`\n🎵 Testing SoundCloud: "${query}"`);
             
             try {
                 const result = await player.search(query, {
-                    searchEngine: 'youtube'
+                    searchEngine: 'soundcloud'
                 });
                 
                 if (result.tracks?.length > 0) {
@@ -83,26 +83,26 @@ async function testCompleteSystem() {
             const { EmergencyPlayer } = require('./functions/player/EmergencyPlayer');
             console.log('✅ EmergencyPlayer module loaded successfully');
             
-            // Test emergency queries
+            // Test emergency SoundCloud queries
             const emergencyQueries = [
-                'lofi hip hop beats to relax study to',
-                'ambient music for relaxation',
-                'piano music peaceful'
+                'chillhop music soundcloud',
+                'ambient electronic soundcloud',
+                'piano ambient soundcloud'
             ];
             
             for (const query of emergencyQueries) {
                 try {
                     const result = await player.search(query, {
-                        searchEngine: 'youtube'
+                        searchEngine: 'soundcloud'
                     });
                     
                     if (result.tracks?.length > 0) {
-                        console.log(`✅ Emergency query "${query}": ${result.tracks[0].title}`);
+                        console.log(`✅ Emergency SoundCloud query "${query}": ${result.tracks[0].title}`);
                     } else {
-                        console.log(`❌ Emergency query "${query}": No results`);
+                        console.log(`❌ Emergency SoundCloud query "${query}": No results`);
                     }
                 } catch (error) {
-                    console.log(`❌ Emergency query "${query}": ${error.message}`);
+                    console.log(`❌ Emergency SoundCloud query "${query}": ${error.message}`);
                 }
             }
             
@@ -110,13 +110,13 @@ async function testCompleteSystem() {
             console.log(`❌ EmergencyPlayer test failed: ${emergencyError.message}`);
         }
         
-        console.log('\n📊 Fallback Strategy Summary:');
-        console.log('Your music system now has 5 fallback strategies:');
-        console.log('1. ✅ DirectPlay (Linux auto-detection)');
-        console.log('2. ✅ "Official" keyword fallback');
-        console.log('3. ✅ Simplified query fallback');
-        console.log('4. ✅ Generic music fallback');
-        console.log('5. ✅ Emergency Player (raw streaming)');
+        console.log('\n📊 SoundCloud-First Strategy Summary:');
+        console.log('Your music system now has 5 SoundCloud-based fallback strategies:');
+        console.log('1. ✅ DirectPlay (SoundCloud-first, Linux optimized)');
+        console.log('2. ✅ "Remix" keyword fallback (SoundCloud)');
+        console.log('3. ✅ Simplified query fallback (SoundCloud)');
+        console.log('4. ✅ Generic chillhop fallback (SoundCloud)');
+        console.log('5. ✅ Emergency SoundCloud Player (raw streaming)');
         
         console.log('\n🎯 Expected Behavior:');
         console.log('- Bot joins voice channel ✅');
