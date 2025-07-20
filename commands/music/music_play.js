@@ -1,6 +1,5 @@
-﻿const { useMainPlayer, useQueue, QueryType } = require("discord-player");
-const { useFunctions, useConfig } = require("../../lib/hooks");
-const player = useMainPlayer();
+﻿const { useQueue, QueryType } = require("discord-player");
+const { useFunctions, useConfig, useLavalinkManager } = require("../../lib/hooks");
 const config = useConfig();
 
 module.exports.data = {
@@ -70,6 +69,9 @@ module.exports.execute = async ({ interaction, lang }) => {
 	const commandtype = interaction.options?.getSubcommand();
 	const query = interaction.options?.getString("query");
 	const command = useFunctions().get("Search");
+	const lavalinkManager = useLavalinkManager();
+	const player = lavalinkManager.getPlayer();
+	
 	if (commandtype === "next") {
 		const queue = useQueue(interaction.guild.id);
 
@@ -105,6 +107,9 @@ module.exports.autocomplete = async ({ interaction, lang }) => {
 	try {
 		const query = interaction.options.getString("query", true);
 		if (!query) return;
+
+		const lavalinkManager = useLavalinkManager();
+		const player = lavalinkManager.getPlayer();
 
 		const results = await player.search(query, {
 			fallbackSearchEngine: QueryType.YOUTUBE,

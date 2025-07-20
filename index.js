@@ -13,6 +13,7 @@ const {
 	useResponder,
 	useWelcome,
 	useLogger,
+	useLavalinkManager,
 	setClient,
 	setDB,
 	setCommands,
@@ -21,18 +22,17 @@ const {
 	setResponder,
 	setWelcome,
 	setAI,
+	setLavalinkManager,
 } = require("./lib/hooks");
 const path = require("node:path");
 const winston = require("winston");
 const util = require("util");
-const { Player } = require("discord-player");
 const config = useConfig(require("./config"));
 const { GiveawaysManager } = require("discord-giveaways");
-const { YoutubeiExtractor } = require("discord-player-youtubei");
 const { loadFiles, loadEvents, createfile } = require("./startup/loader.js");
 const { Client, Collection, GatewayIntentBits, Partials } = require("discord.js");
-const { ShuzukoExtractor, useshuzukoVoiceExtractor, TextToSpeech } = require("./lib/audio");
-const { DefaultExtractors } = require("@discord-player/extractor");
+const { useshuzukoVoiceExtractor } = require("./lib/audio");
+const LavalinkManager = require("./lib/lavalink");
 const readline = require("readline");
 
 const client = new Client({
@@ -85,70 +85,10 @@ const logger = useLogger(
 	}),
 );
 
-// Enhanced Player config for Linux server compatibility
-const playerOptions = {
-	skipFFmpeg: false,
-	// Linux-specific audio options
-	ytdlOptions: {
-		quality: 'highestaudio',
-		filter: 'audioonly',
-		format: 'opus',
-		highWaterMark: 1 << 25
-	},
-	// FFmpeg options for better Linux compatibility
-	ffmpegOptions: {
-		args: [
-			'-reconnect', '1',
-			'-reconnect_streamed', '1',
-			'-reconnect_delay_max', '5',
-			'-analyzeduration', '0',
-			'-loglevel', '0',
-			'-ar', '48000',
-			'-ac', '2',
-			'-f', 'opus'
-		],
-		highWaterMark: 1 << 25
-	}
-};
-
-console.log('🎵 Creating Player with Linux-optimized config');
-const player = new Player(client, playerOptions);
-
-player.setMaxListeners(100);
-// Always enable YoutubeiExtractor for better YouTube support
-player.extractors.register(YoutubeiExtractor, {});
-require("youtubei.js").Log.setLevel(0);
-console.log('✅ Registered YoutubeiExtractor for better YouTube support');
-
-if (config.DevConfig.ShuzukoExtractor) player.extractors.register(ShuzukoExtractor, {});
-
-player.extractors.register(TextToSpeech, {});
-
-// Filter DefaultExtractors to exclude SoundCloud (safer approach)
-console.log('🎵 Filtering DefaultExtractors to exclude SoundCloud...');
-
-// Switch to SoundCloud-first strategy - YouTube may be blocked on server
-const safeExtractors = DefaultExtractors.filter(extractor => {
-	try {
-		const extractorName = extractor.identifier || extractor.name || '';
-		const extractorLower = extractorName.toLowerCase();
-		
-		// Prioritize SoundCloud and exclude YouTube if having issues
-		if (extractorLower.includes('youtube')) {
-			console.log(`❌ Excluded: ${extractorName} (YouTube may be blocked)`);
-			return false;
-		}
-		
-		console.log(`✅ Included: ${extractorName}`);
-		return true;
-	} catch (error) {
-		console.log(`⚠️ Error checking extractor:`, error.message);
-		return false; // Exclude if error
-	}
-});
-
-console.log(`🎵 Loading ${safeExtractors.length} safe extractors (prioritizing SoundCloud)`);
-player.extractors.loadMulti(safeExtractors);
+// Initialize Lavalink Manager
+console.log('🎵 Initializing Lavalink Manager...');
+const lavalinkManager = new LavalinkManager(client);
+const player = lavalinkManager.getPlayer(); // Will be set after initialization
 
 // Debug
 if (config.DevConfig.DJS_DEBUG) client.on("debug", (m) => logger.debug(m));
@@ -200,12 +140,19 @@ const initialize = async () => {
 	setCommands(commands);
 	setFunctions(functions);
 	
+	// Initialize Lavalink Manager
+	await lavalinkManager.initialize();
+	setLavalinkManager(lavalinkManager);
+	
+	// Get the actual player instance after initialization
+	const actualPlayer = lavalinkManager.getPlayer();
+	
 	await Promise.all([
 		loadEvents(path.join(__dirname, "events/client"), client),
 		loadEvents(path.join(__dirname, "events/voice"), shuzukoVoice),
 		loadEvents(path.join(__dirname, "events/process"), process),
 		loadEvents(path.join(__dirname, "events/console"), rl),
-		loadEvents(path.join(__dirname, "events/player"), player.events),
+		loadEvents(path.join(__dirname, "events/player"), actualPlayer.events),
 		loadFiles(path.join(__dirname, "commands"), commands),
 		loadFiles(path.join(__dirname, "functions"), functions),
 		startServer().catch((error) => logger.error("Error start Server:", error)),
