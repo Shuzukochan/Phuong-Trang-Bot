@@ -1,9 +1,9 @@
-﻿const { useDB, useResponder, useLogger, setResponder } = require("../lib/hooks");
+const { useDB, useResponder, useLogger } = require("@zibot/zihooks");
 
 module.exports = async () => {
 	try {
 		let indexs = 0;
-		const responders = await useDB().ShuzukoAutoresponder.find();
+		const responders = await useDB().ZiAutoresponder.find();
 		responders.forEach((responder) => {
 			const autoRes = useResponder();
 			if (!autoRes.has(responder.guildId)) {
@@ -21,4 +21,3 @@ module.exports = async () => {
 		useLogger().error("Lỗi khi tải autoresponders:", error);
 	}
 };
-

@@ -1,5 +1,5 @@
-﻿const { PermissionsBitField } = require("discord.js");
-const { useDB, useResponder, useConfig } = require("../../lib/hooks");
+const { PermissionsBitField } = require("discord.js");
+const { useDB, useResponder, useConfig } = require("@zibot/zihooks");
 const config = useConfig();
 
 module.exports.data = {
@@ -84,7 +84,7 @@ module.exports.newAutoRes = async ({ interaction, lang, options }) => {
 	await interaction.deferReply();
 
 	try {
-		const newResponder = await options.db.ShuzukoAutoresponder.create({
+		const newResponder = await options.db.ZiAutoresponder.create({
 			guildId: interaction.guild.id,
 			trigger: options.trigger,
 			response: options.response,
@@ -106,5 +106,3 @@ module.exports.newAutoRes = async ({ interaction, lang, options }) => {
 	}
 	return;
 };
-
-

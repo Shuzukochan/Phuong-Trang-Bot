@@ -1,5 +1,5 @@
-﻿const Encryptor = require("../../lib/encryption");
-const { useFunctions } = require("../../lib/hooks");
+const Encryptor = require("@zibot/ziencryptor");
+const { useFunctions } = require("@zibot/zihooks");
 const fetch = require("node-fetch");
 
 module.exports.data = {
@@ -22,7 +22,7 @@ module.exports.execute = async ({ interaction, lang }) => {
 
 		if (!query) {
 			query = await handleEmbed(interaction, lang);
-			if (query === "shuzukoshuzukoshuzukoshuzuko") return;
+			if (query === "ZibotZibotZibotZibot") return;
 		}
 
 		if (!query) {
@@ -79,11 +79,9 @@ async function handleSaveQueue(interaction, lang) {
 		const restoreCommand = useFunctions().get("Restored_tracks");
 		await restoreCommand.execute(interaction, decryptedData, lang);
 
-		return "shuzukoshuzukoshuzukoshuzuko";
+		return "ZibotZibotZibotZibot";
 	} catch (error) {
 		console.error("Error restoring tracks:", error);
 		return null;
 	}
 }
-
-

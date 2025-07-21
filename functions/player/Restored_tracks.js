@@ -1,6 +1,6 @@
-﻿const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, BaseInteraction } = require("discord.js");
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, BaseInteraction } = require("discord.js");
 const { useMainPlayer, useQueue, decode, deserialize } = require("discord-player");
-const { useDB, useConfig } = require("../../lib/hooks");
+const { useDB, useConfig } = require("@zibot/zihooks");
 const langdef = require("./../../lang/vi");
 const player = useMainPlayer();
 const config = useConfig();
@@ -75,7 +75,7 @@ module.exports.execute = async (interaction, decryptedData, lang, options = {}) 
 			const DataBase = useDB();
 			playerConfig.volume =
 				DataBase ?
-					((await DataBase.ShuzukoUser.findOne({ userID: user.id }))?.volume ?? DefaultPlayerConfig.volume)
+					((await DataBase.ZiUser.findOne({ userID: user.id }))?.volume ?? DefaultPlayerConfig.volume)
 				:	DefaultPlayerConfig.volume;
 		}
 
@@ -131,5 +131,3 @@ module.exports.data = {
 	name: "Restored_tracks",
 	type: "player",
 };
-
-

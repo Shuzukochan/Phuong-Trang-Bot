@@ -1,4 +1,4 @@
-﻿const { useDB } = require("../../lib/hooks");
+const { useDB } = require("@zibot/zihooks");
 const { MessageFlags, PermissionsBitField } = require("discord.js");
 
 module.exports.data = {
@@ -27,7 +27,7 @@ module.exports.execute = async ({ interaction, lang }) => {
 			content: lang.until.noDB,
 			flags: MessageFlags.Ephemeral,
 		});
-	const confession = await database.ShuzukoConfess.findOne({ guildId: interaction.guildId });
+	const confession = await database.ZiConfess.findOne({ guildId: interaction.guildId });
 	if (!confession || !confession.enabled || !confession.channelId) {
 		return interaction.reply({
 			content: "Confession đang không bật hoặc chưa được setup trong server của bạn!",
@@ -40,7 +40,7 @@ module.exports.execute = async ({ interaction, lang }) => {
 			content: "Confession đã được kiểm duyệt hoặc từ chối trước đó hoặc đã bị xóa",
 			flags: MessageFlags.Ephemeral,
 		});
-	await database.ShuzukoConfess.updateOne(
+	await database.ZiConfess.updateOne(
 		{ guildId: interaction.guildId, "confessions.reviewMessageId": interaction.message.id },
 		{
 			$set: {
@@ -59,5 +59,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 		components: [],
 	});
 };
-
-

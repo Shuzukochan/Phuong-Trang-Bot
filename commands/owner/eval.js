@@ -1,6 +1,6 @@
-﻿const { EmbedBuilder, ApplicationCommandOptionType } = require("discord.js");
+const { EmbedBuilder, ApplicationCommandOptionType } = require("discord.js");
 const DUMMY_TOKEN = "MY_TOKEN_IS_SECRET";
-const config = require("../../lib/hooks").useConfig();
+const config = require("@zibot/zihooks").useConfig();
 
 /**
  * @type {import("@structures/Command")}
@@ -75,4 +75,3 @@ const buildErrorResponse = (err, lang) => {
 
 	return { embeds: [embed] };
 };
-

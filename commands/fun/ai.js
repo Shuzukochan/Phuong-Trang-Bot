@@ -1,4 +1,4 @@
-﻿const { useFunctions, useConfig } = require("../../lib/hooks");
+const { useFunctions, useConfig } = require("@zibot/zihooks");
 const { useQueue } = require("discord-player");
 const config = useConfig();
 
@@ -97,4 +97,3 @@ module.exports.assistant = async (interaction, lang, { query: prompt }) => {
 	const runVoiceAI = useFunctions().get("runVoiceAI");
 	await runVoiceAI.execute(interaction, lang, { query: prompt, focus });
 };
-

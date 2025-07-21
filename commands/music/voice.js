@@ -1,5 +1,5 @@
-﻿const { useMainPlayer, useQueue, QueryType } = require("discord-player");
-const { useFunctions, useConfig, useDB } = require("../../lib/hooks");
+const { useMainPlayer, useQueue, QueryType } = require("discord-player");
+const { useFunctions, useConfig, useDB } = require("@zibot/zihooks");
 const player = useMainPlayer();
 const config = useConfig();
 const { PermissionsBitField } = require("discord.js");
@@ -59,9 +59,9 @@ module.exports.execute = async ({ interaction, lang }) => {
 				content: lang?.until?.noDB || "Database hiện không được bật, xin vui lòng liên hệ dev bot",
 			});
 
-		let GuildSetting = await DataBase.ShuzukoGuild.findOne({ guildId });
+		let GuildSetting = await DataBase.ZiGuild.findOne({ guildId });
 		if (!GuildSetting) {
-			GuildSetting = new DataBase.ShuzukoGuild({ guildId });
+			GuildSetting = new DataBase.ZiGuild({ guildId });
 		}
 
 		GuildSetting.voice.logMode = toggle;
@@ -74,5 +74,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 	}
 	return;
 };
-
-

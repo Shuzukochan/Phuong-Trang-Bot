@@ -1,4 +1,4 @@
-﻿const { useConfig } = require("../../lib/hooks");
+const { useConfig } = require("@zibot/zihooks");
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 const config = useConfig();
 module.exports.data = {
@@ -84,4 +84,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 		.catch((e) => defeerr.edit({ content: "", embeds: [embedrev(e)] }));
 	return;
 };
-

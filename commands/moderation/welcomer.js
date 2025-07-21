@@ -1,5 +1,5 @@
-﻿const { PermissionsBitField, EmbedBuilder } = require("discord.js");
-const { useDB, useWelcome, useConfig, useFunctions } = require("../../lib/hooks");
+const { PermissionsBitField, EmbedBuilder } = require("discord.js");
+const { useDB, useWelcome, useConfig, useFunctions } = require("@zibot/zihooks");
 const config = useConfig();
 const parseVar = useFunctions().get("getVariable");
 module.exports.data = {
@@ -116,7 +116,7 @@ module.exports.execute = async ({ interaction, lang }) => {
 module.exports.setupWelcome = async ({ interaction, lang, options }) => {
 	await interaction.deferReply({ flags: "Ephemeral" });
 	try {
-		await options.db.ShuzukoWelcome.updateOne(
+		await options.db.ZiWelcome.updateOne(
 			{ guildId: interaction.guild.id },
 			{
 				$set: {
@@ -158,5 +158,3 @@ module.exports.setupWelcome = async ({ interaction, lang, options }) => {
 	}
 	return;
 };
-
-

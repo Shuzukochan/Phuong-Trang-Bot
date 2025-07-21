@@ -1,4 +1,4 @@
-﻿const config = require("../../lib/hooks").useConfig();
+const config = require("@zibot/zihooks").useConfig();
 
 module.exports.data = {
 	name: "shutdown",
@@ -21,4 +21,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 	await interaction.reply({ content: "Bot đang dừng...", ephemeral: true });
 	process.exit(); // Dừng bot
 };
-

@@ -1,5 +1,5 @@
-﻿const { PermissionsBitField } = require("discord.js");
-const { useDB } = require("../../lib/hooks");
+const { PermissionsBitField } = require("discord.js");
+const { useDB } = require("@zibot/zihooks");
 
 module.exports.data = {
 	name: "join-to-create",
@@ -71,7 +71,7 @@ module.exports.execute = async ({ interaction, lang }) => {
 				const channel = interaction.options.getChannel("channel");
 				const category = interaction.options.getChannel("category");
 				const guildId = interaction.guild.id;
-				await DataBase.ShuzukoGuild.findOneAndUpdate(
+				await DataBase.ZiGuild.findOneAndUpdate(
 					{ guildId }, // Query condition
 					{
 						joinToCreate: {
@@ -93,7 +93,7 @@ module.exports.execute = async ({ interaction, lang }) => {
 				const guildId = interaction.guild.id;
 
 				// Disable the join-to-create system
-				const updatedGuild = await DataBase.ShuzukoGuild.findOneAndUpdate(
+				const updatedGuild = await DataBase.ZiGuild.findOneAndUpdate(
 					{ guildId }, // Query condition
 					{ "joinToCreate.enabled": false },
 					{ new: true },
@@ -128,5 +128,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 		});
 	}
 };
-
-

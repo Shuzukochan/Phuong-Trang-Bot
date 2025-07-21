@@ -1,4 +1,4 @@
-﻿const { useClient, useLogger } = require("../../lib/hooks");
+const { useClient, useLogger } = require("@zibot/zihooks");
 const client = useClient();
 
 module.exports = {
@@ -10,4 +10,3 @@ module.exports = {
 		client?.errorLog(error.stack);
 	},
 };
-

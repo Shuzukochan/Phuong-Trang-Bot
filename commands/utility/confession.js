@@ -1,4 +1,4 @@
-﻿const { useDB, useFunctions } = require("../../lib/hooks");
+const { useDB, useFunctions } = require("@zibot/zihooks");
 const { EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
 const { PermissionsBitField, MessageFlags } = require("discord.js");
 
@@ -133,7 +133,7 @@ module.exports.execute = async ({ interaction, lang }) => {
 				return interaction.editReply({
 					content: lang?.until?.noDB || "Database hiện không được bật, xin vui lòng liên hệ dev bot",
 				});
-			await database.ShuzukoConfess.updateOne(
+			await database.ZiConfess.updateOne(
 				{ guildId: interaction.guildId },
 				{
 					$set: {
@@ -159,7 +159,7 @@ module.exports.execute = async ({ interaction, lang }) => {
 				});
 			}
 
-			const confession = await database.ShuzukoConfess.findOne({ guildId: interaction.guildId });
+			const confession = await database.ZiConfess.findOne({ guildId: interaction.guildId });
 			const embed2 = errorEmbed.execute("Confession đang không bật hoặc chưa được setup trong server của bạn!");
 
 			if (!confession || !confession.enabled || !confession.channelId) {
@@ -284,7 +284,7 @@ module.exports.execute = async ({ interaction, lang }) => {
 				return interaction.editReply({
 					content: lang?.until?.noDB || "Database hiện không được bật, xin vui lòng liên hệ dev bot",
 				});
-			await database.ShuzukoConfess.updateOne(
+			await database.ZiConfess.updateOne(
 				{ guildId: interaction.guildId },
 				{
 					$set: {
@@ -301,5 +301,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 			await interaction.reply({ content: "Lệnh không hợp lệ hoặc chưa được cài đặt!", flags: MessageFlags.Ephemeral });
 	}
 };
-
-

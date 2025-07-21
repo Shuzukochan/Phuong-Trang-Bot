@@ -1,5 +1,5 @@
-﻿const { useMainPlayer, useQueue } = require("discord-player");
-const { useFunctions } = require("../../lib/hooks");
+const { useMainPlayer, useQueue } = require("discord-player");
+const { useFunctions } = require("@zibot/zihooks");
 const player = useMainPlayer();
 
 module.exports.data = {
@@ -47,4 +47,3 @@ module.exports.getRelatedTracks = async (track, history) => {
 		return [];
 	}
 };
-

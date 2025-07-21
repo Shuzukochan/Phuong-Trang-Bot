@@ -1,4 +1,4 @@
-﻿const {
+const {
 	EmbedBuilder,
 	ActionRowBuilder,
 	ButtonBuilder,
@@ -7,7 +7,7 @@
 	ButtonStyle,
 } = require("discord.js");
 const ZiIcons = require("./../../utility/icon");
-const config = require("../../lib/hooks").useConfig();
+const config = require("@zibot/zihooks").useConfig();
 
 const { Worker } = require("worker_threads");
 
@@ -152,4 +152,3 @@ module.exports.data = {
 	type: "player",
 };
 //Page: 3 / 10
-

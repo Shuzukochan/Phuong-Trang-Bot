@@ -1,7 +1,7 @@
-﻿const { default: axios } = require("axios");
+const { default: axios } = require("axios");
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
 const { EmbedBuilder } = require("discord.js");
-const config = require("../../lib/hooks").useConfig();
+const config = require("@zibot/zihooks").useConfig();
 
 module.exports.data = {
 	name: "ping",
@@ -83,4 +83,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 		});
 	}
 };
-

@@ -1,4 +1,4 @@
-﻿const { useAI } = require("../../lib/hooks");
+const { useAI } = require("@zibot/zihooks");
 const { ButtonStyle, ComponentType, EmbedBuilder, ActionRowBuilder, ButtonBuilder } = require("discord.js");
 
 module.exports.data = {
@@ -7,22 +7,7 @@ module.exports.data = {
 };
 
 module.exports.execute = async (interaction, msg, lang) => {
-	// Check if AI is available
-	const ai = useAI();
-	console.log('🔍 [DEBUG] useAI() returned:', ai);
-	console.log('🔍 [DEBUG] ai.run exists:', !!ai?.run);
-	
-	if (!ai || !ai.run) {
-		return await interaction.editReply({
-			content: "❌ AI chưa được kích hoạt! Vui lòng kiểm tra:\n" +
-				"• GEMINI_API_KEY trong file .env\n" +
-				"• config.DevConfig.ai = true\n" +
-				"• Bot đã restart sau khi thay đổi config",
-			ephemeral: true
-		});
-	}
-
-	const result = await ai.run(msg, interaction.user, lang);
+	const result = await useAI().run(msg, interaction.user, lang);
 
 	// Chia kết quả thành các trang
 	const chunks = splitIntoChunks(result, 4090); // Chia nhỏ kết quả thành các đoạn
@@ -116,4 +101,3 @@ function splitIntoChunks(text, chunkSize) {
 	}
 	return chunks;
 }
-

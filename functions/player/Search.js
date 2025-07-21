@@ -1,6 +1,6 @@
-﻿const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, BaseInteraction, AttachmentBuilder } = require("discord.js");
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, BaseInteraction, AttachmentBuilder } = require("discord.js");
 const { useMainPlayer, useQueue, GuildQueueEvent, Track } = require("discord-player");
-const { useDB, useConfig, useLogger } = require("../../lib/hooks");
+const { useDB, useConfig, useLogger } = require("@zibot/zihooks");
 const { ButtonStyle, StringSelectMenuOptionBuilder, StringSelectMenuBuilder } = require("discord.js");
 const { Worker } = require("worker_threads");
 const langdef = require("./../../lang/vi");
@@ -148,212 +148,17 @@ async function handlePlayRequest(interaction, query, lang, options, queue) {
 			return joinVoiceChannel(interaction, queue, playerConfig, options, lang);
 		}
 
-		// Switch to SoundCloud priority - YouTube may be blocked on server
-		const configSettings = useConfig().PlayerConfig;
-		const searchOptions = { 
-			requestedBy: interaction.user,
-			searchEngine: configSettings.QueryType || "soundcloud"
-		};
-		
-		// Force enable SoundCloud (YouTube issues on Linux server)
-		if (configSettings.disableSoundCloud === false) {
-			searchOptions.searchEngine = "soundcloud";
-		}
-		
-		const res = await player.search(query, searchOptions);
+		const res = await player.search(query, { requestedBy: interaction.user });
 		logger.debug("Search results obtained:", res);
-		
-		if (!res.tracks?.length) {
-			logger.warn("No tracks found, trying fallback search");
-			throw new Error("No tracks found");
-		}
-
-		logger.info(`Attempting to play track: ${res.tracks[0].title} by ${res.tracks[0].author}`);
-		logger.debug("Player config:", playerConfig);
-
-		// Check if we're on Linux and should use DirectPlay immediately
-		const isLinux = process.platform === 'linux';
-		if (isLinux) {
-			logger.info("Linux detected - attempting DirectPlay method first");
-			try {
-				const { DirectYouTubePlayer } = require('./DirectPlay');
-				
-				const result = await DirectYouTubePlayer.playDirect(
-					interaction.member.voice.channel,
-					query,
-					{
-						requestedBy: interaction.user,
-						metadata: await getQueueMetadata(queue, interaction, options, lang)
-					}
-				);
-				
-				if (result.success) {
-					await cleanUpInteraction(interaction, queue);
-					logger.info("DirectPlay successful on Linux");
-					return;
-				}
-			} catch (directPlayError) {
-				logger.warn("DirectPlay failed, falling back to normal method:", directPlayError.message);
-			}
-		}
-
-		// Normal play method with aggressive error handling
-		try {
-			await player.play(interaction.member.voice.channel, res, {
-				nodeOptions: { 
-					...playerConfig, 
-					metadata: await getQueueMetadata(queue, interaction, options, lang) 
-				},
-				requestedBy: interaction.user,
-			});
-		} catch (playError) {
-			logger.error("Normal play method failed:", playError.message);
-			// Force trigger fallback strategies
-			throw new Error("Could not extract stream");
-		}
+		await player.play(interaction.member.voice.channel, res, {
+			nodeOptions: { ...playerConfig, metadata: await getQueueMetadata(queue, interaction, options, lang) },
+			requestedBy: interaction.user,
+		});
 
 		await cleanUpInteraction(interaction, queue);
 		logger.debug("Track played successfully");
 	} catch (e) {
-		logger.error(`Error in handlePlayRequest: ${e.message}`);
-		
-		// Handle specific stream extraction errors with multiple fallback strategies
-		if (e.message?.includes("Could not extract stream") || e.message?.includes("NoResultError")) {
-			logger.warn("Stream extraction failed, trying multiple fallback strategies");
-			
-			// Strategy 1: Try with "official" keyword
-			try {
-				logger.info("Fallback 1: Adding 'official' keyword");
-				const fallbackRes1 = await player.search(`${query} official`, { 
-					requestedBy: interaction.user,
-					searchEngine: "soundcloud"
-				});
-				
-				if (fallbackRes1.tracks?.length) {
-					await player.play(interaction.member.voice.channel, fallbackRes1, {
-						nodeOptions: { ...playerConfig, metadata: await getQueueMetadata(queue, interaction, options, lang) },
-						requestedBy: interaction.user,
-					});
-					await cleanUpInteraction(interaction, queue);
-					logger.info("Fallback 1 successful");
-					return;
-				}
-			} catch (fallbackError1) {
-				logger.warn("Fallback 1 failed:", fallbackError1.message);
-			}
-			
-			// Strategy 2: Try simplified search query
-			try {
-				logger.info("Fallback 2: Simplified search query");
-				const words = query.split(' ').slice(0, 3).join(' '); // Take first 3 words
-				const fallbackRes2 = await player.search(words, { 
-					requestedBy: interaction.user,
-					searchEngine: "soundcloud"
-				});
-				
-				if (fallbackRes2.tracks?.length) {
-					await player.play(interaction.member.voice.channel, fallbackRes2, {
-						nodeOptions: { ...playerConfig, metadata: await getQueueMetadata(queue, interaction, options, lang) },
-						requestedBy: interaction.user,
-					});
-					await cleanUpInteraction(interaction, queue);
-					logger.info("Fallback 2 successful");
-					return;
-				}
-			} catch (fallbackError2) {
-				logger.warn("Fallback 2 failed:", fallbackError2.message);
-			}
-			
-			// Strategy 3: Try DirectPlay for Linux compatibility
-			try {
-				logger.info("Fallback 3: DirectPlay method");
-				const { DirectYouTubePlayer } = require('./DirectPlay');
-				
-				const result = await DirectYouTubePlayer.playDirect(
-					interaction.member.voice.channel,
-					query,
-					{
-						requestedBy: interaction.user,
-						metadata: await getQueueMetadata(queue, interaction, options, lang)
-					}
-				);
-				
-				if (result.success) {
-					await cleanUpInteraction(interaction, queue);
-					logger.info("Fallback 3 successful - DirectPlay worked");
-					return;
-				}
-			} catch (fallbackError3) {
-				logger.warn("Fallback 3 (DirectPlay) failed:", fallbackError3.message);
-			}
-			
-			// Strategy 4: Generic popular music as last resort
-			try {
-				logger.info("Fallback 4: Generic popular music (last resort)");
-				const fallbackRes4 = await player.search("chillhop soundcloud", { 
-					requestedBy: interaction.user,
-					searchEngine: "soundcloud"
-				});
-				
-				if (fallbackRes4.tracks?.length) {
-					await player.play(interaction.member.voice.channel, fallbackRes4, {
-						nodeOptions: { ...playerConfig, metadata: await getQueueMetadata(queue, interaction, options, lang) },
-						requestedBy: interaction.user,
-					});
-					await cleanUpInteraction(interaction, queue);
-					logger.info("Fallback 4 successful - playing generic music");
-					return;
-				}
-			} catch (fallbackError4) {
-				logger.warn("Fallback 4 failed:", fallbackError4.message);
-			}
-			
-			// Strategy 5: Emergency Player (raw audio streaming) - Final attempt
-			try {
-				logger.info("Fallback 5: EmergencyPlayer (raw audio streaming)");
-				const { EmergencyPlayer } = require('./EmergencyPlayer');
-				
-				const emergencyResult = await EmergencyPlayer.emergencyPlay(
-					interaction.member.voice.channel,
-					query,
-					{ requestedBy: interaction.user }
-				);
-				
-				if (emergencyResult.success) {
-					// Send success message manually since EmergencyPlayer bypasses normal flow
-					const embed = new EmbedBuilder()
-						.setColor('#ff9900')
-						.setTitle('🆘 Emergency Music Started')
-						.setDescription(`🎵 Playing emergency audio`)
-						.addFields(
-							{
-								name: 'Original Request',
-								value: `"${query}"`,
-								inline: true
-							},
-							{
-								name: 'Emergency Track',
-								value: emergencyResult.track?.title || emergencyResult.emergencyQuery,
-								inline: true
-							},
-							{
-								name: 'Status',
-								value: '⚠️ Emergency mode active',
-								inline: true
-							}
-						)
-						.setFooter({ text: 'Emergency playback - limited controls available' });
-					
-					await interaction.editReply({ embeds: [embed] });
-					logger.info("EmergencyPlayer successful - emergency audio playing");
-					return;
-				}
-			} catch (emergencyError) {
-				logger.error("Fallback 5 (EmergencyPlayer) failed:", emergencyError.message);
-			}
-		}
-		
-		logger.error("ALL FALLBACK STRATEGIES FAILED - No audio playback possible");
+		logger.error(`Error in handlePlayRequest:  ${JSON.stringify(e)}`);
 		await handleError(interaction, lang);
 	}
 }
@@ -382,7 +187,7 @@ async function getPlayerConfig(options, interaction) {
 		const DataBase = useDB();
 		playerConfig.volume =
 			DataBase ?
-				((await DataBase.ShuzukoUser.findOne({ userID: interaction.user.id }))?.volume ?? DefaultPlayerConfig.volume)
+				((await DataBase.ZiUser.findOne({ userID: interaction.user.id }))?.volume ?? DefaultPlayerConfig.volume)
 			:	DefaultPlayerConfig.volume;
 		logger.debug(`Volume set from database or default: ${playerConfig.volume}`);
 	}
@@ -614,5 +419,3 @@ async function sendSearchResults(interaction, query, tracks, lang) {
 	});
 }
 //#endregion Search Track
-
-

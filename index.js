@@ -1,4 +1,4 @@
-﻿require("dotenv").config();
+require("dotenv").config();
 const { startServer } = require("./web");
 const { checkUpdate } = require("./startup/checkForUpdate");
 const cron = require("node-cron");
@@ -13,26 +13,18 @@ const {
 	useResponder,
 	useWelcome,
 	useLogger,
-	useLavalinkManager,
-	setClient,
-	setDB,
-	setCommands,
-	setFunctions,
-	setGiveaways,
-	setResponder,
-	setWelcome,
-	setAI,
-	setLavalinkManager,
-} = require("./lib/hooks");
+} = require("@zibot/zihooks");
 const path = require("node:path");
 const winston = require("winston");
 const util = require("util");
+const { Player } = require("discord-player");
 const config = useConfig(require("./config"));
 const { GiveawaysManager } = require("discord-giveaways");
+const { YoutubeiExtractor } = require("discord-player-youtubei");
 const { loadFiles, loadEvents, createfile } = require("./startup/loader.js");
 const { Client, Collection, GatewayIntentBits, Partials } = require("discord.js");
-const { useshuzukoVoiceExtractor } = require("./lib/audio");
-const LavalinkManager = require("./lib/lavalink");
+const { ZiExtractor, useZiVoiceExtractor, TextToSpeech } = require("@zibot/ziextractor");
+const { DefaultExtractors } = require("@discord-player/extractor");
 const readline = require("readline");
 
 const client = new Client({
@@ -85,10 +77,20 @@ const logger = useLogger(
 	}),
 );
 
-// Initialize Lavalink Manager
-console.log('🎵 Initializing Lavalink Manager...');
-const lavalinkManager = new LavalinkManager(client);
-const player = lavalinkManager.getPlayer(); // Will be set after initialization
+const player = new Player(client, {
+	skipFFmpeg: false,
+});
+
+player.setMaxListeners(100);
+if (config.DevConfig.YoutubeiExtractor) {
+	player.extractors.register(YoutubeiExtractor, {});
+	require("youtubei.js").Log.setLevel(0);
+}
+
+if (config.DevConfig.ZiExtractor) player.extractors.register(ZiExtractor, {});
+
+player.extractors.register(TextToSpeech, {});
+player.extractors.loadMulti(DefaultExtractors);
 
 // Debug
 if (config.DevConfig.DJS_DEBUG) client.on("debug", (m) => logger.debug(m));
@@ -123,38 +125,25 @@ if (process.env.NODE_ENV == "development") {
 		checkUpdate();
 	});
 }
-const shuzukoVoice = useshuzukoVoiceExtractor({
+const ziVoice = useZiVoiceExtractor({
 	ignoreBots: true,
 	minimalVoiceMessageDuration: 1,
 	lang: "vi-VN",
 });
 
 const initialize = async () => {
-	setClient(client);
-	setWelcome(new Collection());
-	setResponder(new Collection());
-	
-	// Initialize collections
-	const commands = new Collection();
-	const functions = new Collection();
-	setCommands(commands);
-	setFunctions(functions);
-	
-	// Initialize Lavalink Manager
-	await lavalinkManager.initialize();
-	setLavalinkManager(lavalinkManager);
-	
-	// Get the actual player instance after initialization
-	const actualPlayer = lavalinkManager.getPlayer();
-	
+	useClient(client);
+	useWelcome(new Collection());
+	useCooldowns(new Collection());
+	useResponder(new Collection());
 	await Promise.all([
 		loadEvents(path.join(__dirname, "events/client"), client),
-		loadEvents(path.join(__dirname, "events/voice"), shuzukoVoice),
+		loadEvents(path.join(__dirname, "events/voice"), ziVoice),
 		loadEvents(path.join(__dirname, "events/process"), process),
 		loadEvents(path.join(__dirname, "events/console"), rl),
-		loadEvents(path.join(__dirname, "events/player"), actualPlayer.events),
-		loadFiles(path.join(__dirname, "commands"), commands),
-		loadFiles(path.join(__dirname, "functions"), functions),
+		loadEvents(path.join(__dirname, "events/player"), player.events),
+		loadFiles(path.join(__dirname, "commands"), useCommands(new Collection())),
+		loadFiles(path.join(__dirname, "functions"), useFunctions(new Collection())),
 		startServer().catch((error) => logger.error("Error start Server:", error)),
 	]);
 	client.login(process.env.TOKEN).catch((error) => {
@@ -166,4 +155,3 @@ const initialize = async () => {
 initialize().catch((error) => {
 	logger.error("Error during initialization:", error);
 });
-

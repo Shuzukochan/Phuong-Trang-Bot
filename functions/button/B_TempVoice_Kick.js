@@ -1,4 +1,4 @@
-﻿const { useDB } = require("../../lib/hooks");
+const { useDB } = require("@zibot/zihooks");
 const { TextInputStyle, ModalBuilder, ActionRowBuilder, TextInputBuilder } = require("discord.js");
 
 module.exports.data = {
@@ -14,7 +14,7 @@ module.exports.data = {
  */
 
 module.exports.execute = async ({ interaction, lang }) => {
-	const config = await useDB().ShuzukoGuild.findOne({ guildId: interaction.guild.id });
+	const config = await useDB().ZiGuild.findOne({ guildId: interaction.guild.id });
 	if (!config?.joinToCreate.enabled) return interaction.editReply("❌ | Chức năng này chưa được bật ở máy chủ này");
 	const tempChannel = await config.joinToCreate.tempChannels.find((tc) => tc.channelId === interaction.channel.id);
 	if (!tempChannel) return;
@@ -40,5 +40,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 		);
 	await interaction.showModal(modal);
 };
-
-

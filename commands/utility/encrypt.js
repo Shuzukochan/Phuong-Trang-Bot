@@ -1,4 +1,4 @@
-const Encryptor = require("../../lib/encryption");
+const Encryptor = require("@zibot/ziencryptor");
 const { EmbedBuilder } = require("discord.js");
 
 module.exports.data = {

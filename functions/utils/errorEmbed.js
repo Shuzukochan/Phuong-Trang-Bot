@@ -1,4 +1,4 @@
-﻿const { EmbedBuilder } = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 
 module.exports.data = {
 	name: "createErrorEmbed",
@@ -11,7 +11,6 @@ module.exports.execute = (message) => {
 		.setDescription(message)
 		.setColor("Red")
 		.setTimestamp()
-		.setThumbnail(require("../../lib/hooks").useClient().user.displayAvatarURL({ size: 1024 }));
+		.setThumbnail(require("@zibot/zihooks").useClient().user.displayAvatarURL({ size: 1024 }));
 	return embed.data;
 };
-

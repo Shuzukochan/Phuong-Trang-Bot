@@ -1,4 +1,4 @@
-﻿const { useFunctions } = require("../../lib/hooks");
+const { useFunctions } = require("@zibot/zihooks");
 const { useQueue } = require("discord-player");
 const { EmbedBuilder } = require("discord.js");
 
@@ -44,4 +44,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 		],
 	});
 };
-

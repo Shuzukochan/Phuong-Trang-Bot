@@ -1,5 +1,5 @@
-﻿const { Events, CommandInteraction, PermissionsBitField, MessageFlags } = require("discord.js");
-const { useCooldowns, useCommands, useFunctions, useConfig, useLogger } = require("../../lib/hooks");
+const { Events, CommandInteraction, PermissionsBitField, MessageFlags } = require("discord.js");
+const { useCooldowns, useCommands, useFunctions, useConfig, useLogger } = require("@zibot/zihooks");
 const config = useConfig();
 const fs = require("fs");
 const path = require("path");
@@ -100,7 +100,7 @@ module.exports.execute = async (interaction) => {
 	}
 
 	// Get the user's language preference
-	const langfunc = Functions.get("ShuzukoRank");
+	const langfunc = Functions.get("ZiRank");
 	const lang = await langfunc.execute({ user, XpADD: interaction.isAutocomplete() ? 0 : 1 });
 
 	// Try to execute the command and handle errors
@@ -133,5 +133,3 @@ module.exports.execute = async (interaction) => {
 		}
 	}
 };
-
-

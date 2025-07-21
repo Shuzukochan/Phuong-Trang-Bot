@@ -1,9 +1,9 @@
-﻿const { useDB, useWelcome, useLogger, setWelcome } = require("../lib/hooks");
+const { useDB, useWelcome, useLogger } = require("@zibot/zihooks");
 
 module.exports = async () => {
 	try {
 		let indexs = 0;
-		const Welcome = await useDB().ShuzukoWelcome.find();
+		const Welcome = await useDB().ZiWelcome.find();
 		Welcome.forEach((r) => {
 			const Res = useWelcome();
 			if (!Res.has(r.guildId)) {
@@ -22,4 +22,3 @@ module.exports = async () => {
 		useLogger().error("Lỗi khi tải welcome:", error);
 	}
 };
-

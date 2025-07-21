@@ -1,6 +1,6 @@
-﻿const { useMainPlayer, QueryType, GuildQueue } = require("discord-player");
-const { useFunctions } = require("../../lib/hooks");
-const config = require("../../lib/hooks").useConfig();
+const { useMainPlayer, QueryType, GuildQueue } = require("discord-player");
+const { useFunctions } = require("@zibot/zihooks");
+const config = require("@zibot/zihooks").useConfig();
 const player = useMainPlayer();
 const {
 	Client,
@@ -80,7 +80,7 @@ module.exports = {
 	execute: async ({ queue, tracks }) => {
 		const track = tracks ?? queue?.currentTrack ?? queue?.history?.previousTrack;
 		const requestedBy = track?.requestedBy ?? queue.metadata.requestedBy;
-		const langfunc = useFunctions().get("ShuzukoRank");
+		const langfunc = useFunctions().get("ZiRank");
 		const lang = await langfunc.execute({ user: requestedBy, XpADD: 0 });
 		const queryTypeIcon = getQueryTypeIcon(track?.queryType, track?.raw);
 		const timestamps = queue?.node.getTimestamp();
@@ -130,7 +130,7 @@ module.exports = {
 			new StringSelectMenuOptionBuilder()
 				.setLabel("No Track")
 				.setDescription(`XX:XX`)
-				.setValue(`Phuong Trang Bot`)
+				.setValue(`Ziji Bot`)
 				.setEmoji(`${ZiIcons.Playbutton}`),
 		];
 
@@ -326,5 +326,3 @@ module.exports = {
 		return code;
 	},
 };
-
-

@@ -1,5 +1,5 @@
-﻿const { useQueue } = require("discord-player");
-const { useFunctions } = require("../../lib/hooks");
+const { useQueue } = require("discord-player");
+const { useFunctions } = require("@zibot/zihooks");
 
 module.exports.data = {
 	name: "player",
@@ -29,4 +29,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 	const res = await player.execute({ queue });
 	await interaction.editReply(res);
 };
-

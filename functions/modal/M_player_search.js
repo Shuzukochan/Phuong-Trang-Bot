@@ -1,4 +1,4 @@
-﻿const { useFunctions } = require("../../lib/hooks");
+const { useFunctions } = require("@zibot/zihooks");
 
 module.exports.data = {
 	name: "M_player_search",
@@ -17,4 +17,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 	const command = useFunctions().get("Search");
 	await command.execute(interaction, query, lang);
 };
-

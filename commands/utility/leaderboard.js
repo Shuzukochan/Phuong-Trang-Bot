@@ -1,5 +1,5 @@
-﻿const { AttachmentBuilder } = require("discord.js");
-const { useDB, useConfig } = require("../../lib/hooks");
+const { AttachmentBuilder } = require("discord.js");
+const { useDB, useConfig } = require("@zibot/zihooks");
 const { Worker } = require("worker_threads");
 
 async function buildImageInWorker(workerData) {
@@ -54,7 +54,7 @@ module.exports.execute = async ({ interaction, lang }) => {
 	const db = useDB();
 	if (!db) return interaction.editReply({ content: lang?.until?.noDB, ephemeral: true }).catch(() => {});
 
-	const UserI = await db?.ShuzukoUser?.find();
+	const UserI = await db?.ZiUser?.find();
 
 	const usersort = UserI.sort((a, b) => {
 		if (b.level !== a.level) {
@@ -107,5 +107,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 		interaction.deleteReply();
 	}
 };
-
-

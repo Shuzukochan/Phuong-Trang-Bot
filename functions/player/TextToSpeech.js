@@ -1,5 +1,5 @@
-﻿const { useMainPlayer, useQueue, Track } = require("discord-player");
-const { useDB, useConfig } = require("../../lib/hooks");
+const { useMainPlayer, useQueue, Track } = require("discord-player");
+const { useDB, useConfig } = require("@zibot/zihooks");
 const langdef = require("./../../lang/vi");
 const player = useMainPlayer();
 const config = useConfig();
@@ -36,7 +36,7 @@ module.exports.execute = async (interaction, context, lang, options = { "enable 
 			const DataBase = useDB();
 			playerConfig.volume =
 				DataBase ?
-					((await DataBase.ShuzukoUser.findOne({ userID: user.id }))?.volume ?? DefaultPlayerConfig.volume)
+					((await DataBase.ZiUser.findOne({ userID: user.id }))?.volume ?? DefaultPlayerConfig.volume)
 				:	DefaultPlayerConfig.volume;
 		}
 
@@ -100,5 +100,3 @@ module.exports.data = {
 	name: "TextToSpeech",
 	type: "player",
 };
-
-

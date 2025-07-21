@@ -1,7 +1,7 @@
-﻿const fs = require("fs");
+const fs = require("fs");
 const path = require("path");
 const { ApplicationCommandOptionType } = require("discord.js");
-const config = require("../../lib/hooks").useConfig();
+const config = require("@zibot/zihooks").useConfig();
 module.exports.data = {
 	name: "dev-ban",
 	description: "Cấm người dùng sử dụng bot",
@@ -47,4 +47,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 
 	return interaction.reply({ content: `Đã cấm người dùng có ID ${userId} khỏi bot!`, ephemeral: true });
 };
-

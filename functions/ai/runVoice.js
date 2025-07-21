@@ -1,7 +1,7 @@
-﻿const { useMainPlayer } = require("discord-player");
+const { useMainPlayer } = require("discord-player");
 const player = useMainPlayer();
-const { useshuzukoVoiceExtractor } = require("../../lib/audio");
-const { useFunctions, useAI } = require("../../lib/hooks");
+const { useZiVoiceExtractor } = require("@zibot/ziextractor");
+const { useFunctions, useAI } = require("@zibot/zihooks");
 
 module.exports.data = {
 	name: "runVoiceAI",
@@ -55,5 +55,3 @@ module.exports.execute = async (interaction, lang, options = { query: null }) =>
 module.exports.checkStatus = () => {
 	return voiceAI;
 };
-
-

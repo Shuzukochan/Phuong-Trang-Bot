@@ -1,4 +1,4 @@
-﻿const { useConfig, useWelcome, useFunctions } = require("../../lib/hooks");
+const { useConfig, useWelcome, useFunctions } = require("@zibot/zihooks");
 const { Events, GuildMember, AttachmentBuilder } = require("discord.js");
 const config = useConfig();
 const { Worker } = require("worker_threads");
@@ -6,7 +6,7 @@ const { Worker } = require("worker_threads");
 async function buildImageInWorker(workerData) {
 	return new Promise((resolve, reject) => {
 		const worker = new Worker("./utility/welcomeImage.js", {
-			workerData, //: { ShuzukoDisplayName, ShuzukoType, ShuzukoAvatar, ShuzukoMessage, ShuzukoImage },
+			workerData, //: { ZDisplayName, ZType, ZAvatar, ZMessage, ZImage },
 		});
 
 		worker.on("message", (arrayBuffer) => {
@@ -47,10 +47,10 @@ module.exports = {
 		if (!welcome) return;
 		try {
 			const attachment = await buildImageInWorker({
-				ShuzukoDisplayName: member.user.username,
-				ShuzukoType: "Goodbye",
-				ShuzukoAvatar: member.user.displayAvatarURL({ size: 1024, forceStatic: true, extension: "png" }),
-				ShuzukoMessage: `See you again in ${member.guild.name}!`,
+				ZDisplayName: member.user.username,
+				ZType: "Goodbye",
+				ZAvatar: member.user.displayAvatarURL({ size: 1024, forceStatic: true, extension: "png" }),
+				ZMessage: `See you again in ${member.guild.name}!`,
 			});
 			const channel = await member.client.channels.fetch(welcome.Bchannel);
 			const parseVar = useFunctions().get("getVariable");
@@ -69,5 +69,3 @@ module.exports = {
 		}
 	},
 };
-
-

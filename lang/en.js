@@ -1,4 +1,4 @@
-const config = require("../lib/hooks").useConfig();
+const config = require("@zibot/zihooks").useConfig();
 module.exports = {
 	name: "en",
 	local_names: "en_US",

@@ -1,6 +1,6 @@
-﻿const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 const ZiIcons = require("../../utility/icon");
-const config = require("../../lib/hooks").useConfig();
+const config = require("@zibot/zihooks").useConfig();
 
 module.exports.data = {
 	name: "help",
@@ -88,4 +88,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 	});
 	return;
 };
-

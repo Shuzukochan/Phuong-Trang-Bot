@@ -1,4 +1,4 @@
-﻿const { useLogger } = require("../../lib/hooks");
+const { useLogger } = require("@zibot/zihooks");
 const { GuildQueueEvent } = require("discord-player");
 
 module.exports = {
@@ -15,4 +15,3 @@ module.exports = {
 		useLogger().error(error.stack);
 	},
 };
-

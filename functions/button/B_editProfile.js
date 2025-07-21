@@ -1,4 +1,4 @@
-﻿const { useDB } = require("../../lib/hooks");
+const { useDB } = require("@zibot/zihooks");
 const { ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle } = require("discord.js");
 
 module.exports.data = {
@@ -17,7 +17,7 @@ module.exports.execute = async ({ interaction, lang }) => {
 	const db = useDB();
 	if (!db) return interaction.reply({ content: lang?.until?.noDB, ephemeral: true }).catch(() => {});
 
-	let rankkk = await db?.ShuzukoUser?.findOne({ userID: interaction?.user.id }).catch((e) => {});
+	let rankkk = await db?.ZiUser?.findOne({ userID: interaction?.user.id }).catch((e) => {});
 	if (rankkk.level < 2) return interaction.reply({ content: `${lang?.RankSystem.canLv2}`, ephemeral: true }).catch((e) => {});
 
 	const modal = new ModalBuilder()
@@ -37,5 +37,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 	// await interaction.deferReply({ ephemeral: true }).catch(() => {});
 	return interaction?.showModal(modal);
 };
-
-

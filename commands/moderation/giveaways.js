@@ -1,5 +1,5 @@
-﻿const { PermissionsBitField, EmbedBuilder } = require("discord.js");
-const { useGiveaways, useConfig } = require("../../lib/hooks");
+const { PermissionsBitField, EmbedBuilder } = require("discord.js");
+const { useGiveaways, useConfig } = require("@zibot/zihooks");
 const Giveaways = useGiveaways();
 const config = useConfig();
 
@@ -246,4 +246,3 @@ module.exports.data = {
 	default_member_permissions: "0", // chỉ có admin mới dùng được
 	enable: config.DevConfig.Giveaway,
 };
-

@@ -1,4 +1,4 @@
-﻿const { useCommands } = require("../../lib/hooks");
+const { useCommands } = require("@zibot/zihooks");
 
 module.exports.data = {
 	name: "B_refProfile",
@@ -16,4 +16,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 	const Command = useCommands();
 	return Command.get("profile").execute({ interaction, lang });
 };
-

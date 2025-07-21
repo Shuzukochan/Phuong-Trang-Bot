@@ -1,4 +1,4 @@
-﻿const { useDB, useFunctions } = require("../../lib/hooks");
+const { useDB, useFunctions } = require("@zibot/zihooks");
 
 module.exports.data = {
 	name: "M_TempVoice_Rename",
@@ -13,7 +13,7 @@ module.exports.data = {
 
 module.exports.execute = async ({ interaction, lang }) => {
 	await interaction.deferReply();
-	const config = await useDB().ShuzukoGuild.findOne({ guildId: interaction.guild.id });
+	const config = await useDB().ZiGuild.findOne({ guildId: interaction.guild.id });
 	if (!config?.joinToCreate.enabled) return interaction.editReply("❌ | Chức năng này chưa được bật ở máy chủ này");
 	const tempChannel = await config.joinToCreate.tempChannels.find((tc) => tc.channelId === interaction.channel.id);
 	if (!tempChannel) return;
@@ -25,5 +25,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 	await channel.setName(newName);
 	await interaction.editReply({ content: `✅ | Kênh thoại đã đổi tên thành \`${newName}\``, ephemeral: true });
 };
-
-

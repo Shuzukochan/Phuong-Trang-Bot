@@ -1,9 +1,9 @@
-﻿const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 const os = require("os");
 const { version: DjsVersion } = require("discord.js");
 const { version: DplVersion } = require("discord-player");
 const { execSync } = require("child_process");
-const { useCommands, useConfig } = require("../../lib/hooks");
+const { useCommands, useConfig } = require("@zibot/zihooks");
 
 module.exports.data = {
 	name: "statistics",
@@ -96,4 +96,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 	// Gửi embed
 	await interaction.editReply({ embeds: [embed], components: [rowC] });
 };
-

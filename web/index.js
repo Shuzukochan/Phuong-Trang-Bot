@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const WebSocket = require("ws");
-const { useClient, useLogger, useConfig, useFunctions } = require("../lib/hooks");
+const { useClient, useLogger, useConfig, useFunctions } = require("@zibot/zihooks");
 const { useMainPlayer } = require("discord-player");
 const http = require("http");
 const ngrok = require("ngrok");
@@ -20,13 +20,13 @@ async function startServer() {
 			credentials: true,
 		}),
 	);
-	server.listen(process.env.SERVER_PORT || 2004, () => {
-		logger.info(`Server running on port ${process.env.SERVER_PORT || 2004}`);
+	server.listen(process.env.SERVER_PORT || 2003, () => {
+		logger.info(`Server running on port ${process.env.SERVER_PORT || 2003}`);
 	});
 
-			if (process.env.NGROK_AUTHTOKEN && process.env.NGROK_AUTHTOKEN !== "") {
+	if (process.env.NGROK_AUTHTOKEN && process.env.NGROK_AUTHTOKEN !== "") {
 		const url = await ngrok.connect({
-			addr: process.env.SERVER_PORT || 2004,
+			addr: process.env.SERVER_PORT || 2003,
 			hostname: process.env.NGROK_DOMAIN,
 			authtoken: process.env.NGROK_AUTHTOKEN,
 		});

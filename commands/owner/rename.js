@@ -1,4 +1,4 @@
-﻿const config = require("../../lib/hooks").useConfig();
+const config = require("@zibot/zihooks").useConfig();
 
 module.exports.data = {
 	name: "rename",
@@ -57,4 +57,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 		});
 	}
 };
-

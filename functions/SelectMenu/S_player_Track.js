@@ -1,4 +1,4 @@
-﻿const { useFunctions } = require("../../lib/hooks");
+const { useFunctions } = require("@zibot/zihooks");
 
 module.exports.data = {
 	name: "S_player_Track",
@@ -19,4 +19,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 	await command.execute(interaction, query, lang);
 	return;
 };
-

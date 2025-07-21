@@ -1,17 +1,17 @@
-﻿const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { useDB, useAI, setAI, useLogger, useClient, useConfig } = require("../lib/hooks");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { useDB, useAI, useLogger, useClient, useConfig } = require("@zibot/zihooks");
 const config = useConfig();
 const client = useClient();
 
 const promptBuilder = async ({ content, user, lang, DataBase }) => {
-	const { promptHistory, CurrentAI, CurrentUser } = (await DataBase.ShuzukoUser.findOne({ userID: user?.id })) || {};
+	const { promptHistory, CurrentAI, CurrentUser } = (await DataBase.ZiUser.findOne({ userID: user?.id })) || {};
 
 	const lowerContent = content?.toLowerCase()?.trim();
 	const language = lang?.local_names || "vi_VN";
 
 	const old_Prompt = `${
 		promptHistory ??
-		`You are Phuong Trang Discord bot. Supports slash commands including: avatar, help, language, ping, translate, disconnect, userinfo, ban, purge, volumec, weather, kick, timeout, unban, untimeout, lyrics, statistics, play next, play assistant, play music, player, autoresponder new, autoresponder edit, welcomer setup, ai ask, ai assistant, decrypt, encrypt, variable, tts, voice log.`
+		`You are a Discord bot Supports slash commands including: avatar, help, language, ping, translate, disconnect, userinfo, ban, purge, volumec, cat, dog, weather, kick, timeout, unban, untimeout, lyrics, anime, statistics, play next, play assistant, play music, player, autoresponder new, autoresponder edit, welcomer setup, ai ask, ai assistant, decrypt, encrypt, variable, tts, voice log. With source code at: https://github.com/zijipia/Ziji-bot-discord`
 	}\n${user?.username}: ${CurrentUser} \n${client.user.username}: ${CurrentAI}`.slice(-13000);
 
 	const userPrompt = lowerContent ? `${user?.username} có câu hỏi: ${lowerContent}` : "How can I assist you today?";
@@ -27,22 +27,12 @@ const promptBuilder = async ({ content, user, lang, DataBase }) => {
 
 module.exports = async () => {
 	try {
-		console.log('🔍 [DEBUG] Checking AI initialization...');
-		console.log('🔍 [DEBUG] config.DevConfig.ai:', config.DevConfig.ai);
-		console.log('🔍 [DEBUG] GEMINI_API_KEY exists:', !!process.env?.GEMINI_API_KEY);
-		console.log('🔍 [DEBUG] GEMINI_API_KEY length:', process.env?.GEMINI_API_KEY?.length);
-		
-		if (!config.DevConfig.ai || !process.env?.GEMINI_API_KEY?.length) {
-			console.log('❌ [DEBUG] AI initialization skipped - config or API key missing');
-			return;
-		}
+		if (!config.DevConfig.ai || !process.env?.GEMINI_API_KEY?.length) return;
 
-		console.log('✅ [DEBUG] Initializing Google AI...');
 		const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 		const DataBase = useDB();
 
-		console.log('✅ [DEBUG] Setting up useAI hook...');
-		setAI({
+		useAI({
 			client,
 			genAI,
 			run: async (prompt, user, lang) => {
@@ -62,7 +52,7 @@ module.exports = async () => {
 				if (!text) return "Lỗi khi gọi AI";
 				if (!user) return text;
 
-				await DataBase.ShuzukoUser.updateOne(
+				await DataBase.ZiUser.updateOne(
 					{ userID: user?.id },
 					{
 						$set: {
@@ -78,11 +68,8 @@ module.exports = async () => {
 			},
 		});
 
-		console.log('🎉 [DEBUG] AI model loaded successfully!');
 		useLogger().info(`Successfully loaded Ai model.`);
 	} catch (error) {
-		console.log('❌ [DEBUG] Error loading AI model:', error);
 		useLogger().error("Lỗi khi tải Ai model:", error);
 	}
 };
-

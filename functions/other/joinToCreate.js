@@ -1,4 +1,4 @@
-﻿const { useFunctions, useConfig } = require("../../lib/hooks");
+const { useFunctions, useConfig } = require("@zibot/zihooks");
 const {
 	ButtonBuilder,
 	ButtonStyle,
@@ -105,4 +105,3 @@ module.exports.execute = async (oldState, newState, guildSetting) => {
 		}
 	}
 };
-

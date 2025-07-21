@@ -1,4 +1,4 @@
-﻿const { useLogger } = require("../../lib/hooks");
+const { useLogger } = require("@zibot/zihooks");
 const { Events } = require("discord.js");
 
 module.exports = {
@@ -12,4 +12,3 @@ module.exports = {
 		useLogger().error(error.message);
 	},
 };
-

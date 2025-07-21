@@ -1,8 +1,8 @@
-﻿const { GuildQueueEvent } = require("discord-player");
-const { useshuzukoVoiceExtractor } = require("../../lib/audio");
+const { GuildQueueEvent } = require("discord-player");
+const { useZiVoiceExtractor } = require("@zibot/ziextractor");
 const { entersState, VoiceConnectionStatus } = require("@discordjs/voice");
 
-const config = require("../../lib/hooks").useConfig();
+const config = require("@zibot/zihooks").useConfig();
 
 module.exports = {
 	name: GuildQueueEvent.Connection,
@@ -31,9 +31,7 @@ module.exports = {
 		}
 		console.log(" ready state: OK");
 
-		const shuzukoVoice = useshuzukoVoiceExtractor();
-		shuzukoVoice.handleSpeakingEvent(queue.player.client, queue.connection, speechOptions);
+		const ziVoice = useZiVoiceExtractor();
+		ziVoice.handleSpeakingEvent(queue.player.client, queue.connection, speechOptions);
 	},
 };
-
-

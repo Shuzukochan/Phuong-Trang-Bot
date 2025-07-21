@@ -1,5 +1,5 @@
-﻿const { GuildQueue, Track, GuildQueueEvent } = require("discord-player");
-const { useFunctions, useConfig } = require("../../lib/hooks");
+const { GuildQueue, Track, GuildQueueEvent } = require("discord-player");
+const { useFunctions, useConfig } = require("@zibot/zihooks");
 
 const Functions = useFunctions();
 const config = useConfig();
@@ -49,4 +49,3 @@ module.exports = {
 		}
 	},
 };
-

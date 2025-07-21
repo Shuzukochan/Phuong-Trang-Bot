@@ -1,5 +1,5 @@
-﻿const { GuildQueueEvent } = require("discord-player");
-const { useFunctions } = require("../../lib/hooks");
+const { GuildQueueEvent } = require("discord-player");
+const { useFunctions } = require("@zibot/zihooks");
 
 module.exports = {
 	name: GuildQueueEvent.EmptyQueue,
@@ -11,4 +11,3 @@ module.exports = {
 		if (queue.metadata.mess) return queue.metadata.mess.edit(res);
 	},
 };
-

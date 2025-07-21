@@ -1,4 +1,4 @@
-﻿const { useDB } = require("../../lib/hooks");
+const { useDB } = require("@zibot/zihooks");
 
 module.exports.data = {
 	name: "M_TempVoice_Kick",
@@ -15,7 +15,7 @@ module.exports.execute = async ({ interaction, lang }) => {
 	const { guild, customId, fields } = interaction;
 	// Lấy thông tin từ modal
 	const kickUserId = fields.getTextInputValue("kickUserId");
-	const config = await useDB().ShuzukoGuild.findOne({ guildId: interaction.guild.id });
+	const config = await useDB().ZiGuild.findOne({ guildId: interaction.guild.id });
 	if (!config?.joinToCreate.enabled) return interaction.editReply("❌ | Chức năng này chưa được bật ở máy chủ này");
 
 	// Kiểm tra xem người dùng có tồn tại và đang ở trong kênh thoại
@@ -53,5 +53,3 @@ module.exports.execute = async ({ interaction, lang }) => {
 		});
 	}
 };
-
-

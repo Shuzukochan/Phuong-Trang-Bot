@@ -1,5 +1,5 @@
-﻿const { Events, Message } = require("discord.js");
-const { useResponder, useConfig, useFunctions, useCommands, useLogger, modinteraction, useAI } = require("../../lib/hooks");
+const { Events, Message } = require("discord.js");
+const { useResponder, useConfig, useFunctions, useCommands, useLogger, modinteraction, useAI } = require("@zibot/zihooks");
 const config = useConfig();
 const mentionRegex = /@(everyone|here|ping)/;
 
@@ -19,7 +19,7 @@ module.exports.execute = async (message) => {
 	if (!message.client.isReady()) return;
 	if (message.author.bot) return;
 	// Get the user's language preference
-	const langfunc = Functions.get("ShuzukoRank");
+	const langfunc = Functions.get("ZiRank");
 	const lang = await langfunc.execute({ user: message.author, XpADD: 0 });
 	if (config?.DevConfig?.AutoResponder && message?.guild && (await reqreponser(message))) return; // Auto Responder
 
@@ -97,5 +97,3 @@ const reqreponser = async (message) => {
 	}
 	return false;
 };
-
-

@@ -1,7 +1,7 @@
-﻿const { Events, EmbedBuilder } = require("discord.js");
+const { Events, EmbedBuilder } = require("discord.js");
 const { useQueue } = require("discord-player");
-const config = require("../../lib/hooks").useConfig();
-const { useFunctions, useDB } = require("../../lib/hooks");
+const config = require("@zibot/zihooks").useConfig();
+const { useFunctions, useDB } = require("@zibot/zihooks");
 
 module.exports = {
 	name: Events.VoiceStateUpdate,
@@ -15,7 +15,7 @@ module.exports = {
 		if (!oldState.client.isReady()) return;
 
 		const guildId = newState.guild.id;
-		const guildSetting = await useDB()?.ShuzukoGuild.findOne({ guildId });
+		const guildSetting = await useDB()?.ZiGuild.findOne({ guildId });
 
 		// Join to create
 		if (guildSetting?.joinToCreate.enabled) {
@@ -38,15 +38,15 @@ const Voicelogmode = async (oldState, newState, guildSetting) => {
 	if (newState.channelId) {
 		// User joined a voice channel
 		const welcomeMessages = [
-			"<a:shuzuko_Dragon:1323313537229262940> Chào **{user}** đợi mãi mới thấy ông vào **{channel}**!",
-			"<a:shuzuko_Dragon2:1323313583953547344> Yay, **{user}** đã tham gia **{channel}**",
+			"<a:ZiBot_Dragon:1323313537229262940> Chào **{user}** đợi mãi mới thấy ông vào **{channel}**!",
+			"<a:ZiBot_Dragon2:1323313583953547344> Yay, **{user}** đã tham gia **{channel}**",
 		];
 		const randomWelcomeMsg = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
 		const message = randomWelcomeMsg.replace("{user}", userTag).replace("{channel}", channelName);
 		logChannel.send(`${message}\n-# Toggle voice log by using /voice log`);
 	} else if (oldState.channelId) {
 		// User left a voice channel
-		const leaveMessages = ["<:shuzuko_fuckzu:1323313619676696651> **{user}** đã rời khỏi **{channel}** rồi, buồn quá  (╥﹏╥)"];
+		const leaveMessages = ["<:ZiBot_fuckzu:1323313619676696651> **{user}** đã rời khỏi **{channel}** rồi, buồn quá  (╥﹏╥)"];
 		const randomLeaveMsg = leaveMessages[Math.floor(Math.random() * leaveMessages.length)];
 		const message = randomLeaveMsg.replace("{user}", userTag).replace("{channel}", channelName);
 		logChannel.send(`${message}\n-# Toggle voice log by using /voice log`).catch(() => {});
@@ -91,5 +91,3 @@ const playerQueue = async (oldState) => {
 	setTimeout(() => mess?.delete().catch(() => {}), 20_000);
 	queue.metadata.requestedBy = randomMember.user;
 };
-
-
