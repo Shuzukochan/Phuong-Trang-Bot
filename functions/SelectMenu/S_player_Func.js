@@ -10,7 +10,7 @@ const {
 	AttachmentBuilder,
 	EmbedBuilder,
 } = require("discord.js");
-const Encryptor = require("@zibot/ziencryptor");
+const Encryptor = require("../../utility/encryptor");
 
 module.exports.data = {
 	name: "S_player_Func",

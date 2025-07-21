@@ -1,9 +1,9 @@
 const { Events, Client, ActivityType } = require("discord.js");
 const config = require("../../config");
 const deploy = require("../../startup/deploy");
-const mongoose = require("mongoose");
 const { useDB, useLogger } = require("@zibot/zihooks");
-const { Database, createModel } = require("@zibot/db");
+const { initializeFirebase } = require("../../utility/firebase");
+const { createFirebaseModels } = require("../../startup/firebaseDB");
 
 module.exports = {
 	name: Events.ClientReady,
@@ -31,34 +31,27 @@ module.exports = {
 			}
 		};
 
-		// Use Promise.all to handle MongoDB connection and deployment concurrently
-		const [deployResult, mongoConnected] = await Promise.all([
-			config?.deploy ? deploy(client).catch(() => null) : null,
-			mongoose.connect(process.env.MONGO).catch(() => false),
-		]);
+		// Khởi tạo Firebase và các services
+		try {
+			const [deployResult] = await Promise.all([
+				config?.deploy ? deploy(client).catch(() => null) : null,
+			]);
 
-		if (mongoConnected) {
-			useDB(require("../../startup/mongoDB"));
+			// Khởi tạo Firebase
+			const firebaseApp = initializeFirebase();
+			
+			// Sử dụng Firebase models
+			useDB(createFirebaseModels());
 			await require("../../startup/loadResponder")();
 			await require("../../startup/loadWelcome")();
 			await require("../../startup/initAI")();
 
-			useLogger().info("Connected to MongoDB!");
-			client.errorLog("Connected to MongoDB!");
-		} else {
-			useLogger().error("Failed to connect to MongoDB!");
-			const db = new Database("./jsons/ziDB.json");
-			useDB({
-				ZiUser: createModel(db, "ZiUser"),
-				ZiAutoresponder: createModel(db, "ZiAutoresponder"),
-				ZiWelcome: createModel(db, "ZiWelcome"),
-				ZiGuild: createModel(db, "ZiGuild"),
-			});
-			await require("../../startup/loadResponder")();
-			await require("../../startup/loadWelcome")();
-			await require("../../startup/initAI")();
-			useLogger().info("Connected to LocalDB!");
-			client.errorLog("Connected to LocalDB!");
+			useLogger().info("Connected to Firebase!");
+			client.errorLog("Connected to Firebase!");
+		} catch (error) {
+			useLogger().error("Failed to connect to Firebase:", error);
+			// Nếu Firebase không kết nối được, dừng bot
+			process.exit(1);
 		}
 
 		// Set Activity status

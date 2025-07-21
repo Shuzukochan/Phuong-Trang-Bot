@@ -1,4 +1,4 @@
-const Encryptor = require("@zibot/ziencryptor");
+const Encryptor = require("../../utility/encryptor");
 const { useFunctions } = require("@zibot/zihooks");
 const fetch = require("node-fetch");
 

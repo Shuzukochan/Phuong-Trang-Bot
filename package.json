@@ -1,7 +1,7 @@
 {
-	"name": "ziji-bot-discord",
-	"version": "7.4.3",
-	"description": "Ziji bot discord",
+	"name": "phuong-trang-bot",
+	"version": "1.0.0",
+	"description": "phuong-trang-bot",
 	"main": "index.js",
 	"scripts": {
 		"start": "cross-env NODE_ENV=production node index.js",
@@ -13,26 +13,22 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/zijipia/Ziji-bot-discord.git"
+		"url": "git+https://github.com/Shuzukochan/Phuong-Trang-Bot.git"
 	},
 	"keywords": [
-		"ziji",
-		"ziji-bot-discord",
-		"zibot"
+		"phuong-trang-bot"
 	],
-	"author": "Ziji",
+	"author": "Shuzuko",
 	"license": "ISC",
 	"bugs": {
-		"url": "https://github.com/zijipia/Ziji-bot-discord/issues"
+		"url": "https://github.com/Shuzukochan/Phuong-Trang-Bot/issues"
 	},
-	"homepage": "https://github.com/zijipia/Ziji-bot-discord#readme",
+	"homepage": "https://github.com/Shuzukochan/Phuong-Trang-Bot#readme",
 	"dependencies": {
 		"@discord-player/extractor": "^7.1.0",
 		"@discordjs/voice": "^0.18.0",
 		"@google/generative-ai": "^0.24.0",
 		"@iamtraction/google-translate": "^2.0.1",
-		"@zibot/db": "^0.0.2",
-		"@zibot/ziencryptor": "^0.0.1",
 		"@zibot/ziextractor": "^2.3.9",
 		"@zibot/zihooks": "^1.0.9",
 		"axios": "^1.7.7",
@@ -48,10 +44,10 @@
 		"dotenv": "^17.0.0",
 		"express": "^5.1.0",
 		"ffmpeg-static": "^5.2.0",
+		"firebase-admin": "^12.7.0",
 		"http": "^0.0.1-security",
 		"makeitaquote": "^8.1.1",
 		"mediaplex": "^1.0.0",
-		"mongoose": "^8.8.3",
 		"ngrok": "^5.0.0-beta.2",
 		"node-cron": "^4.1.0",
 		"node-fetch": "^2.7.0",
