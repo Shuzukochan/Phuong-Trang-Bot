@@ -1,5 +1,5 @@
 const { useQueue, serialize, decode, encode } = require("discord-player");
-const { useFunctions, useDB, useConfig } = require("@zibot/zihooks");
+const { useFunctions, useDB, useConfig } = require("../../utility/hooks");
 const Functions = useFunctions();
 const config = useConfig();
 const {

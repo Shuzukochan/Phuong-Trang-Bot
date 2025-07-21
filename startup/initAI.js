@@ -1,5 +1,5 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { useDB, useAI, useLogger, useClient, useConfig } = require("@zibot/zihooks");
+const { useDB, useAI, useLogger, useClient, useConfig } = require("../utility/hooks");
 const config = useConfig();
 const client = useClient();
 

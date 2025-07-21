@@ -1,4 +1,4 @@
-const { useLogger } = require("@zibot/zihooks");
+const { useLogger } = require("../../utility/hooks");
 const { GuildQueueEvent } = require("discord-player");
 
 module.exports = {

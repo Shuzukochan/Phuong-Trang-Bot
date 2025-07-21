@@ -1,4 +1,4 @@
-const { useFunctions } = require("@zibot/zihooks");
+const { useFunctions } = require("../../utility/hooks");
 
 module.exports.data = {
 	name: "M_player_search",

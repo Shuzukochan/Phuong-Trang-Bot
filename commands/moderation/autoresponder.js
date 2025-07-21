@@ -1,5 +1,5 @@
 const { PermissionsBitField } = require("discord.js");
-const { useDB, useResponder, useConfig } = require("@zibot/zihooks");
+const { useDB, useResponder, useConfig } = require("../../utility/hooks");
 const config = useConfig();
 
 module.exports.data = {

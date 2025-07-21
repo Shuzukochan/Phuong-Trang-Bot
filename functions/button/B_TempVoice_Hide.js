@@ -1,4 +1,4 @@
-const { useDB } = require("@zibot/zihooks");
+const { useDB } = require("../../utility/hooks");
 const { PermissionFlagsBits } = require("discord.js");
 
 module.exports.data = {

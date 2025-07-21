@@ -1,5 +1,5 @@
 const { useQueue } = require("discord-player");
-const { useFunctions } = require("@zibot/zihooks");
+const { useFunctions } = require("../../utility/hooks");
 const Functions = useFunctions();
 
 module.exports.data = {

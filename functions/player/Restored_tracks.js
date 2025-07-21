@@ -1,6 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, BaseInteraction } = require("discord.js");
 const { useMainPlayer, useQueue, decode, deserialize } = require("discord-player");
-const { useDB, useConfig } = require("@zibot/zihooks");
+const { useDB, useConfig } = require("../../utility/hooks");
 const langdef = require("./../../lang/vi");
 const player = useMainPlayer();
 const config = useConfig();

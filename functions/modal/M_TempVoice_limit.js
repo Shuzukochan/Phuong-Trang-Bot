@@ -1,4 +1,4 @@
-const { useDB, useFunctions } = require("@zibot/zihooks");
+const { useDB, useFunctions } = require("../../utility/hooks");
 
 module.exports.data = {
 	name: "M_TempVoice_limit",

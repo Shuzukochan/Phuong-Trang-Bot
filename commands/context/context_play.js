@@ -1,5 +1,5 @@
 const Encryptor = require("../../utility/encryptor");
-const { useFunctions } = require("@zibot/zihooks");
+const { useFunctions } = require("../../utility/hooks");
 const fetch = require("node-fetch");
 
 module.exports.data = {

@@ -1,5 +1,5 @@
 const { AttachmentBuilder } = require("discord.js");
-const { useDB, useConfig } = require("@zibot/zihooks");
+const { useDB, useConfig } = require("../../utility/hooks");
 const { Worker } = require("worker_threads");
 
 async function buildImageInWorker(workerData) {

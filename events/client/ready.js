@@ -1,7 +1,7 @@
 const { Events, Client, ActivityType } = require("discord.js");
 const config = require("../../config");
 const deploy = require("../../startup/deploy");
-const { useDB, useLogger } = require("@zibot/zihooks");
+const { useDB, useLogger } = require("../../utility/hooks");
 const { initializeFirebase } = require("../../utility/firebase");
 const { createFirebaseModels } = require("../../startup/firebaseDB");
 

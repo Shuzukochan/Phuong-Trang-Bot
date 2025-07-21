@@ -1,5 +1,5 @@
 const { PermissionsBitField, EmbedBuilder } = require("discord.js");
-const { useGiveaways, useConfig } = require("@zibot/zihooks");
+const { useGiveaways, useConfig } = require("../../utility/hooks");
 const Giveaways = useGiveaways();
 const config = useConfig();
 

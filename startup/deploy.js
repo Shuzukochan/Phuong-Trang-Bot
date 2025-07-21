@@ -1,5 +1,5 @@
 const { REST, Routes } = require("discord.js");
-const { useCommands, useConfig, useLogger } = require("@zibot/zihooks");
+const { useCommands, useConfig, useLogger } = require("../utility/hooks");
 const config = useConfig();
 
 module.exports = async (client) => {

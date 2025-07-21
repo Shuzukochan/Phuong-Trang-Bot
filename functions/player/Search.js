@@ -1,6 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, BaseInteraction, AttachmentBuilder } = require("discord.js");
 const { useMainPlayer, useQueue, GuildQueueEvent, Track } = require("discord-player");
-const { useDB, useConfig, useLogger } = require("@zibot/zihooks");
+const { useDB, useConfig, useLogger } = require("../../utility/hooks");
 const { ButtonStyle, StringSelectMenuOptionBuilder, StringSelectMenuBuilder } = require("discord.js");
 const { Worker } = require("worker_threads");
 const langdef = require("./../../lang/vi");

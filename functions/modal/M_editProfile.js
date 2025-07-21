@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require("discord.js");
-const { useDB, useConfig } = require("@zibot/zihooks");
+const { useDB, useConfig } = require("../../utility/hooks");
 const HEX_COLOR_REGEX = /^#[0-9A-F]{6}$/i;
 
 module.exports.data = {

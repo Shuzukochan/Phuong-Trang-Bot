@@ -1,4 +1,4 @@
-const { useFunctions, useClient, useLogger } = require("@zibot/zihooks");
+const { useFunctions, useClient, useLogger } = require("../../utility/hooks");
 const Functions = useFunctions();
 const client = useClient();
 const logger = useLogger();

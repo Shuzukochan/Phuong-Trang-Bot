@@ -1,4 +1,4 @@
-const { useDB } = require("@zibot/zihooks");
+const { useDB } = require("../../utility/hooks");
 
 module.exports.data = {
 	name: "M_TempVoice_Kick",

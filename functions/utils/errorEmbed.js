@@ -11,6 +11,6 @@ module.exports.execute = (message) => {
 		.setDescription(message)
 		.setColor("Red")
 		.setTimestamp()
-		.setThumbnail(require("@zibot/zihooks").useClient().user.displayAvatarURL({ size: 1024 }));
+		.setThumbnail(require("../../utility/hooks").useClient().user.displayAvatarURL({ size: 1024 }));
 	return embed.data;
 };

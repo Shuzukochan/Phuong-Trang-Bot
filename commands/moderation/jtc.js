@@ -1,5 +1,5 @@
 const { PermissionsBitField } = require("discord.js");
-const { useDB } = require("@zibot/zihooks");
+const { useDB } = require("../../utility/hooks");
 
 module.exports.data = {
 	name: "join-to-create",

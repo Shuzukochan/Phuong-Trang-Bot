@@ -1,6 +1,6 @@
 const { ButtonBuilder, ActionRowBuilder, ButtonStyle, AttachmentBuilder } = require("discord.js");
 const { Font, RankCardBuilder } = require("canvacord");
-const { useDB, useConfig } = require("@zibot/zihooks");
+const { useDB, useConfig } = require("../../utility/hooks");
 const { Worker } = require("worker_threads");
 
 async function buildImageInWorker(workerData) {

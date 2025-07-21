@@ -1,5 +1,5 @@
 const { useQueue } = require("discord-player");
-const { useFunctions } = require("@zibot/zihooks");
+const { useFunctions } = require("../../utility/hooks");
 
 module.exports.data = {
 	name: "B_player_pause",

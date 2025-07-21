@@ -1,4 +1,4 @@
-const { useAI } = require("@zibot/zihooks");
+const { useAI } = require("../../utility/hooks");
 const { ButtonStyle, ComponentType, EmbedBuilder, ActionRowBuilder, ButtonBuilder } = require("discord.js");
 
 module.exports.data = {

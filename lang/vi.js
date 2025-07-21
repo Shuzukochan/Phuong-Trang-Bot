@@ -1,4 +1,4 @@
-const config = require("@zibot/zihooks").useConfig();
+const config = require("../utility/hooks").useConfig();
 module.exports = {
 	name: "vi",
 	local_names: "vi_VN",

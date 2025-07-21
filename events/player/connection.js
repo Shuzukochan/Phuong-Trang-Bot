@@ -2,7 +2,7 @@ const { GuildQueueEvent } = require("discord-player");
 const { useZiVoiceExtractor } = require("@zibot/ziextractor");
 const { entersState, VoiceConnectionStatus } = require("@discordjs/voice");
 
-const config = require("@zibot/zihooks").useConfig();
+const config = require("../../utility/hooks").useConfig();
 
 module.exports = {
 	name: GuildQueueEvent.Connection,

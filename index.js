@@ -3,8 +3,6 @@ const { startServer } = require("./web");
 const { checkUpdate } = require("./startup/checkForUpdate");
 const cron = require("node-cron");
 const {
-	useAI,
-	useClient,
 	useCooldowns,
 	useCommands,
 	useFunctions,
@@ -13,7 +11,8 @@ const {
 	useResponder,
 	useWelcome,
 	useLogger,
-} = require("@zibot/zihooks");
+	useClient,
+} = require("./utility/hooks");
 const path = require("node:path");
 const winston = require("winston");
 const util = require("util");

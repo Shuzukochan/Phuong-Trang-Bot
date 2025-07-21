@@ -1,4 +1,4 @@
-const { useFunctions, useDB } = require("@zibot/zihooks");
+const { useFunctions, useDB } = require("../../utility/hooks");
 
 module.exports.data = {
 	name: "language",

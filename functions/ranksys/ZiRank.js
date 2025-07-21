@@ -1,4 +1,4 @@
-const { useDB, useConfig } = require("@zibot/zihooks");
+const { useDB, useConfig } = require("../../utility/hooks");
 const config = useConfig();
 
 module.exports.data = {

@@ -1,5 +1,5 @@
 const { useMainPlayer, useQueue, Track } = require("discord-player");
-const { useDB, useConfig } = require("@zibot/zihooks");
+const { useDB, useConfig } = require("../../utility/hooks");
 const langdef = require("./../../lang/vi");
 const player = useMainPlayer();
 const config = useConfig();
