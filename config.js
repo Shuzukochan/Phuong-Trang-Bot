@@ -52,9 +52,9 @@ module.exports = {
     nodes: [
         {
             name: "Phuong-Trang-Main",
-            password: process.env.LAVALINK_PASSWORD || "123456789",
-            host: process.env.LAVALINK_HOST || "localhost",
-            port: parseInt(process.env.LAVALINK_PORT) || 2333,
+            password: process.env.LAVALINK_PASSWORD,
+            host: process.env.LAVALINK_HOST,
+            port: parseInt(process.env.LAVALINK_PORT),
             secure: false
         }
     ],
