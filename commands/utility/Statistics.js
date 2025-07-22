@@ -1,98 +1,118 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 const os = require("os");
 const { version: DjsVersion } = require("discord.js");
-const { version: DplVersion } = require("discord-player");
 const { execSync } = require("child_process");
-const { useCommands, useConfig } = require("../../utility/hooks");
+const config = require("../../config.js");
 
-module.exports.data = {
-	name: "statistics",
-	description: "View information about the system.",
-	type: 1, // slash command
-	options: [],
-	integration_types: [0, 1],
-	contexts: [0, 1, 2],
-};
 
-/**
- * @param { object } command - object command
- * @param { import ("discord.js").CommandInteraction } command.interaction - interaction
- * @param { import('../../lang/vi.js') } command.lang - language
- */
+module.exports = {
+    name: "statistics",
+    description: "View information about the system and bot statistics",
+    
+    async run(client, interaction) {
+        await interaction.deferReply();
 
-module.exports.execute = async ({ interaction, lang }) => {
-	const config = useConfig();
-	await interaction.deferReply();
-	const { client } = interaction;
 
-	const rowC = new ActionRowBuilder().addComponents(
-		new ButtonBuilder().setCustomId("B_cancel").setLabel("❌").setStyle(ButtonStyle.Secondary),
-	);
-	const osInfo = `${os.type()} ${os.release()} ${os.arch()}`;
+        // Get system information
+        const osInfo = `${os.type()} ${os.release()} ${os.arch()}`;
 
-	// Lấy GitHub Commit ID
-	let githubCommitId = "N/A";
-	try {
-		githubCommitId = execSync("git rev-parse --short HEAD").toString().trim();
-	} catch (error) {
-		console.error("Không thể lấy GitHub Commit");
-	}
-	const onwerIDs = config?.OwnerID;
 
-	const totalGuilds = client.guilds.cache.size;
-	const totalMembers = client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0);
-	const voiceConnections = client?.voice?.adapters?.size || 0;
+        // Get GitHub Commit ID
+        let githubCommitId = "N/A";
+        try {
+            githubCommitId = execSync("git rev-parse --short HEAD").toString().trim();
+        } catch (error) {
+            console.error("Không thể lấy GitHub Commit");
+        }
 
-	// Tạo embed để hiển thị thông tin
-	const embed = new EmbedBuilder()
-		.setColor(lang?.color || "Random")
-		.setDescription(
-			`**${lang?.BotStats?.Description} ${client.user.username}:
-          • Owner/Developer: ${onwerIDs.map((id) => `<@${id}>`).join(" ") || `<@891275176409460746>`}
-          • ${lang?.BotStats?.User}: \`${totalMembers || 0}\`
-          • ${lang?.BotStats?.Server}: \`${totalGuilds || 0}\`
-          • ${lang?.BotStats?.Voice}: \`${voiceConnections}\`
-          • ${lang?.BotStats?.Command}: \`${useCommands().map((c) => c.data.name).length}\`
-          • ${lang?.BotStats?.Operation}: <t:${Math.floor(Number(Date.now() - client.uptime) / 1000)}:R>
-          • Ping: \`${client.ws.ping} MS\`
-          • ${lang?.BotStats?.RAMUsage}: \`${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB\`
-          [Invite Bot](${lang?.botConfig.InviteBot}) /  [Support Server](${lang?.botConfig.SupportServer})
-          **`,
-		)
-		.addFields(
-			{ name: lang?.BotStats?.OS, value: osInfo, inline: true },
-			{ name: lang?.BotStats?.djsVersion, value: `${DjsVersion}`, inline: true },
-			{ name: lang?.BotStats?.dplVersion, value: `${DplVersion}`, inline: true },
-			{ name: "GitHub Commit ID", value: githubCommitId, inline: true },
-		)
-		.setImage(lang?.botConfig?.Banner ?? null)
-		.setThumbnail(interaction.client.user.displayAvatarURL())
-		.setFooter({
-			text: `${lang.until.requestBy} ${interaction.user.username}`,
-			iconURL: interaction.user.displayAvatarURL({ size: 1024 }),
-		})
-		.setTimestamp();
 
-	if (config?.webAppConfig?.enabled) {
-		const status = new ButtonBuilder()
-			.setLabel("Status")
-			.setEmoji("1254203682686373938")
-			.setStyle(ButtonStyle.Link)
-			.setURL(config.webAppConfig?.statusUrl);
-		const music = new ButtonBuilder()
-			.setLabel("Music Controller")
-			.setEmoji("1254203682686373938")
-			.setStyle(ButtonStyle.Link)
-			.setURL(config.webAppConfig?.musicControllerUrl);
-		const dashboard = new ButtonBuilder()
-			.setLabel("Dashboard")
-			.setEmoji("1254203682686373938")
-			.setStyle(ButtonStyle.Link)
-			.setURL(config.webAppConfig?.dashboardUrl);
-		const row = new ActionRowBuilder().addComponents(status, music, dashboard);
-		await interaction.editReply({ embeds: [embed], components: [row, rowC] });
-		return;
-	}
-	// Gửi embed
-	await interaction.editReply({ embeds: [embed], components: [rowC] });
+        // Get owner IDs from config
+        const ownerIDs = config.ownerID || [];
+
+
+        // Calculate bot statistics
+        const totalGuilds = client.guilds.cache.size;
+        const totalMembers = client.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0);
+        const voiceConnections = client.riffy?.players?.size || 0;
+        
+        // Count commands
+        let totalCommands = 0;
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            
+            function countJSFiles(dir) {
+                let count = 0;
+                const files = fs.readdirSync(dir);
+                
+                for (const file of files) {
+                    const filePath = path.join(dir, file);
+                    const stat = fs.statSync(filePath);
+                    
+                    if (stat.isDirectory()) {
+                        count += countJSFiles(filePath);
+                    } else if (file.endsWith('.js')) {
+                        count++;
+                    }
+                }
+                return count;
+            }
+            
+            totalCommands = countJSFiles('./commands');
+        } catch (error) {
+            console.error("Error counting commands:", error);
+            totalCommands = "Unknown";
+        }
+
+
+        // Calculate uptime
+        const uptimeTimestamp = Math.floor((Date.now() - client.uptime) / 1000);
+
+
+        // Create main embed
+        const embed = new EmbedBuilder()
+            .setColor(config.embedColor)
+            .setTitle(`📊 ${client.user.username} Statistics`)
+            .setDescription(
+                `**🤖 Bot Information:**\n` +
+                `• **Owner/Developer:** ${ownerIDs.map(id => `<@${id}>`).join(" ") || "Not configured"}\n` +
+                `• **Users:** \`${totalMembers.toLocaleString()}\`\n` +
+                `• **Servers:** \`${totalGuilds}\`\n` +
+                `• **Active Music Players:** \`${voiceConnections}\`\n` +
+                `• **Available Commands:** \`${totalCommands}\`\n` +
+                `• **Online Since:** <t:${uptimeTimestamp}:R>\n` +
+                `• **Response Time:** \`${client.ws.ping} ms\`\n` +
+                `• **Memory Usage:** \`${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB\``
+            )
+            .addFields(
+                { name: "🖥️ System", value: osInfo, inline: true },
+                { name: "📦 Discord.js", value: `v${DjsVersion}`, inline: true },
+                { name: "🎵 Music Engine", value: "Riffy + Lavalink", inline: true },
+                { name: "🔗 Git Commit", value: `\`${githubCommitId}\``, inline: true },
+                { name: "⚡ Node.js", value: process.version, inline: true },
+                { name: "💻 Platform", value: process.platform.charAt(0).toUpperCase() + process.platform.slice(1), inline: true }
+            )
+            .setThumbnail(client.user.displayAvatarURL({ size: 1024 }))
+            .setFooter({
+                text: `Yêu cầu bởi: ${interaction.user.username}`,
+                iconURL: interaction.user.displayAvatarURL({ size: 1024 })
+            })
+            .setTimestamp();
+
+
+        // Add support server button
+        const linkRow = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setLabel("🏠 Support Server")
+                .setStyle(ButtonStyle.Link)
+                .setURL(config.SupportServer)
+        );
+
+
+        // Send the response
+        await interaction.editReply({ 
+            embeds: [embed], 
+            components: [linkRow] 
+        });
+    }
 };

@@ -33,7 +33,6 @@
 node_modules
 package-lock.json
 *.env
-config.js
 .env
 package-lock.json
 giveaways.json

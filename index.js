@@ -1,156 +1,110 @@
-require("dotenv").config();
-const { startServer } = require("./web");
-const { checkUpdate } = require("./startup/checkForUpdate");
-const cron = require("node-cron");
-const {
-	useCooldowns,
-	useCommands,
-	useFunctions,
-	useGiveaways,
-	useConfig,
-	useResponder,
-	useWelcome,
-	useLogger,
-	useClient,
-} = require("./utility/hooks");
-const path = require("node:path");
-const winston = require("winston");
-const util = require("util");
-const { Player } = require("discord-player");
-const config = useConfig(require("./config"));
-const { GiveawaysManager } = require("discord-giveaways");
-const { YoutubeiExtractor } = require("discord-player-youtubei");
-const { loadFiles, loadEvents, createfile } = require("./startup/loader.js");
-const { Client, Collection, GatewayIntentBits, Partials } = require("discord.js");
-const { ZiExtractor, useZiVoiceExtractor, TextToSpeech } = require("@zibot/ziextractor");
-const { DefaultExtractors } = require("@discord-player/extractor");
-const readline = require("readline");
+require('dotenv').config();
+const { Client, GatewayIntentBits } = require("discord.js");
+const config = require("./config.js");
+const fs = require("fs");
+const path = require('path');
+const { initializePlayer } = require('./music/player');
+const { initializeFirebase } = require('./firebase');
+const colors = require('./ui/colors/colors.js');
 
 const client = new Client({
-	rest: [{ timeout: 60_000 }],
-	intents: [
-		GatewayIntentBits.Guilds, // for guild related things
-		GatewayIntentBits.GuildVoiceStates, // for voice related things
-		GatewayIntentBits.GuildMessageReactions, // for message reactions things
-		GatewayIntentBits.GuildMembers, // for guild members related things
-		// GatewayIntentBits.GuildEmojisAndStickers, // for manage emojis and stickers
-		// GatewayIntentBits.GuildIntegrations, // for discord Integrations
-		// GatewayIntentBits.GuildWebhooks, // for discord webhooks
-		GatewayIntentBits.GuildInvites, // for guild invite managing
-		// GatewayIntentBits.GuildPresences, // for user presence things
-		GatewayIntentBits.GuildMessages, // for guild messages things
-		// GatewayIntentBits.GuildMessageTyping, // for message typing things
-		GatewayIntentBits.DirectMessages, // for dm messages
-		GatewayIntentBits.DirectMessageReactions, // for dm message reaction
-		// GatewayIntentBits.DirectMessageTyping, // for dm message typinh
-		GatewayIntentBits.MessageContent, // enable if you need message content things
-	],
-	partials: [Partials.User, Partials.GuildMember, Partials.Message, Partials.Channel],
-	allowedMentions: {
-		parse: ["users"],
-		repliedUser: false,
-	},
+    intents: Object.keys(GatewayIntentBits).map((a) => {
+        return GatewayIntentBits[a];
+    }),
 });
 
-createfile("./jsons");
-// Configure logger
-const logger = useLogger(
-	winston.createLogger({
-		level: config.DevConfig?.logger || "", // leave blank to enable all
-		format: winston.format.combine(
-			winston.format.timestamp(),
-			winston.format.printf(
-				({ level, message, timestamp }) =>
-					`[${timestamp}] [${level.toUpperCase()}]:` + util.inspect(message, { showHidden: false, depth: 2, colors: true }),
-			),
-		),
-		transports: [
-			new winston.transports.Console({
-				format: winston.format.printf(
-					({ level, message }) =>
-						`[${level.toUpperCase()}]:` + util.inspect(message, { showHidden: false, depth: 2, colors: true }),
-				),
-			}),
-			new winston.transports.File({ filename: "./jsons/bot.log", level: "error" }),
-		],
-	}),
-);
+client.config = config;
+initializePlayer(client);
 
-const player = new Player(client, {
-	skipFFmpeg: false,
+client.on("ready", () => {
+    console.log(`${colors.cyan}[ SYSTEM ]${colors.reset} ${colors.green}Client logged as ${colors.yellow}${client.user.tag}${colors.reset}`);
+    client.riffy.init(client.user.id);
+});
+client.config = config;
+
+fs.readdir("./events", (_err, files) => {
+  files.forEach((file) => {
+    if (!file.endsWith(".js")) return;
+    const event = require(`./events/${file}`);
+    let eventName = file.split(".")[0]; 
+    client.on(eventName, event.bind(null, client));
+    delete require.cache[require.resolve(`./events/${file}`)];
+  });
 });
 
-player.setMaxListeners(100);
-if (config.DevConfig.YoutubeiExtractor) {
-	player.extractors.register(YoutubeiExtractor, {});
-	require("youtubei.js").Log.setLevel(0);
+
+client.commands = [];
+
+function loadCommands(dir) {
+  const files = fs.readdirSync(dir);
+  
+  for (const file of files) {
+    const filePath = path.join(dir, file);
+    const stat = fs.statSync(filePath);
+    
+    if (stat.isDirectory()) {
+      // Nếu là thư mục, load commands trong thư mục đó
+      loadCommands(filePath);
+    } else if (file.endsWith('.js')) {
+      try {
+        const props = require(path.resolve(filePath));
+        if (props.name && props.description) {
+          client.commands.push({
+            name: props.name,
+            description: props.description,
+            options: props.options || [],
+          });
+          console.log(`${colors.cyan}[ COMMAND ]${colors.reset} ${colors.green}Loaded: ${props.name}${colors.reset}`);
+        }
+      } catch (err) {
+        console.log(`${colors.cyan}[ COMMAND ]${colors.reset} ${colors.red}Error loading ${file}: ${err.message}${colors.reset}`);
+      }
+    }
+  }
 }
 
-if (config.DevConfig.ZiExtractor) player.extractors.register(ZiExtractor, {});
+loadCommands(config.commandsDir);
 
-player.extractors.register(TextToSpeech, {});
-player.extractors.loadMulti(DefaultExtractors);
 
-// Debug
-if (config.DevConfig.DJS_DEBUG) client.on("debug", (m) => logger.debug(m));
-if (config.DevConfig.DPe_DEBUG) player.events.on("debug", (m) => logger.debug(m));
-if (config.DevConfig.DP_DEBUG) {
-	logger.debug(player.scanDeps());
-	player.on("debug", (m) => logger.debug(m));
-}
-const rl = readline.createInterface({
-	input: process.stdin,
-	output: process.stdout,
+client.on("raw", (d) => {
+    const { GatewayDispatchEvents } = require("discord.js");
+    if (![GatewayDispatchEvents.VoiceStateUpdate, GatewayDispatchEvents.VoiceServerUpdate].includes(d.t)) return;
+    client.riffy.updateVoiceState(d);
 });
 
-useGiveaways(
-	config.DevConfig.Giveaway ?
-		new GiveawaysManager(client, {
-			storage: "./jsons/giveaways.json",
-			default: {
-				botsCanWin: false,
-				embedColor: "Random",
-				embedColorEnd: "#000000",
-				reaction: "🎉",
-			},
-		})
-	:	() => false,
-);
-if (process.env.NODE_ENV == "development") {
-	logger.info("You are in development mode, skipping update check.");
-} else {
-	checkUpdate();
-	cron.schedule("0 0,12 * * *", () => {
-		checkUpdate();
-	});
-}
-const ziVoice = useZiVoiceExtractor({
-	ignoreBots: true,
-	minimalVoiceMessageDuration: 1,
-	lang: "vi-VN",
+client.login(config.TOKEN || process.env.TOKEN).catch((e) => {
+  console.log('\n' + '─'.repeat(40));
+  console.log(`${colors.magenta}${colors.bright}🔐 TOKEN VERIFICATION${colors.reset}`);
+  console.log('─'.repeat(40));
+  console.log(`${colors.cyan}[ TOKEN ]${colors.reset} ${colors.red}Authentication Failed ❌${colors.reset}`);
+  console.log(`${colors.gray}Error: Turn On Intents or Reset New Token${colors.reset}`);
+});
+initializeFirebase().then(() => {
+  console.log('\n' + '─'.repeat(40));
+  console.log(`${colors.magenta}${colors.bright}� FIREBASE STATUS${colors.reset}`);
+  console.log('─'.repeat(40));
+  console.log(`${colors.cyan}[ FIREBASE ]${colors.reset} ${colors.green}Firestore Online ✅${colors.reset}`);
+}).catch((err) => {
+  console.log('\n' + '─'.repeat(40));
+  console.log(`${colors.magenta}${colors.bright}� FIREBASE STATUS${colors.reset}`);
+  console.log('─'.repeat(40));
+  console.log(`${colors.cyan}[ FIREBASE ]${colors.reset} ${colors.red}Connection Failed ❌${colors.reset}`);
+  console.log(`${colors.gray}Error: ${err.message}${colors.reset}`);
 });
 
-const initialize = async () => {
-	useClient(client);
-	useWelcome(new Collection());
-	useCooldowns(new Collection());
-	useResponder(new Collection());
-	await Promise.all([
-		loadEvents(path.join(__dirname, "events/client"), client),
-		loadEvents(path.join(__dirname, "events/voice"), ziVoice),
-		loadEvents(path.join(__dirname, "events/process"), process),
-		loadEvents(path.join(__dirname, "events/console"), rl),
-		loadEvents(path.join(__dirname, "events/player"), player.events),
-		loadFiles(path.join(__dirname, "commands"), useCommands(new Collection())),
-		loadFiles(path.join(__dirname, "functions"), useFunctions(new Collection())),
-		startServer().catch((error) => logger.error("Error start Server:", error)),
-	]);
-	client.login(process.env.TOKEN).catch((error) => {
-		logger.error("Error logging in:", error);
-		logger.error("The Bot Token You Entered Into Your Project Is Incorrect Or Your Bot's INTENTS Are OFF!");
-	});
-};
+const express = require("express");
+const app = express();
+const port = 3000;
 
-initialize().catch((error) => {
-	logger.error("Error during initialization:", error);
+app.get('/', (req, res) => {
+    const imagePath = path.join(__dirname, 'web', 'index.html'); // Sửa đường dẫn
+    res.sendFile(imagePath);
+});
+
+app.listen(port, () => {
+    console.log('\n' + '─'.repeat(40));
+    console.log(`${colors.magenta}${colors.bright}🌐 SERVER STATUS${colors.reset}`);
+    console.log('─'.repeat(40));
+    console.log(`${colors.cyan}[ SERVER ]${colors.reset} ${colors.green}Online ✅${colors.reset}`);
+    console.log(`${colors.cyan}[ PORT ]${colors.reset} ${colors.yellow}http://localhost:${port}${colors.reset}`);
 });
