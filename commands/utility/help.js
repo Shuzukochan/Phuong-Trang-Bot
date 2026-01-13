@@ -70,7 +70,7 @@ module.exports = {
                     `**Chào mừng bạn đến với ${client.user.username}!** 🎵\n\n` +
                     `Bot âm nhạc chuyên nghiệp với nhiều tính năng mạnh mẽ:\n` +
                     `• **High Quality Music** - Âm thanh chất lượng cao từ Lavalink\n` +
-                    `• **Multiple Sources** - YouTube, Spotify, SoundCloud\n` +
+                    `• **Multiple Sources** - YouTube, SoundCloud\n` +
                     `• **Interactive Controls** - Buttons và menu dễ sử dụng\n` +
                     `• **Audio Filters** - Nhiều hiệu ứng âm thanh độc đáo\n\n` +
                     `**📊 Quick Stats:**\n` +

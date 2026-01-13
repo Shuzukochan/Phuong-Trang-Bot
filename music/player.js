@@ -1,11 +1,11 @@
 const { Riffy } = require("riffy");
 const config = require("../config.js");
 const colors = require('../ui/colors/colors.js');
-const { 
-    handleTrackStart, 
-    handleTrackEnd, 
-    handleQueueEnd, 
-    handlePlayerDisconnect 
+const {
+    handleTrackStart,
+    handleTrackEnd,
+    handleQueueEnd,
+    handlePlayerDisconnect
 } = require('./handlers/trackHandler');
 
 function initializePlayer(client) {
@@ -27,15 +27,15 @@ function initializePlayer(client) {
             const guild = client.guilds.cache.get(guildId);
             if (guild) guild.shard.send(payload);
         },
-        defaultSearchPlatform: "ytmsearch",
         restVersion: "v4",
+        defaultSearchPlatform: "ytsearch",
     });
 
     // Node events
     client.riffy.on("nodeConnect", node => {
         console.log(`${colors.cyan}[ LAVALINK ]${colors.reset} ${colors.green}Node ${node.name} Connected ✅${colors.reset}`);
     });
-    
+
     client.riffy.on("nodeError", (node, error) => {
         console.log(`${colors.cyan}[ LAVALINK ]${colors.reset} ${colors.red}Node ${node.name} Error ❌ | ${error.message}${colors.reset}`);
     });

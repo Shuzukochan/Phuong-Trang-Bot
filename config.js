@@ -41,12 +41,6 @@ module.exports = {
     },
 
     /**
-     * Spotify API Configuration
-     */
-    spotifyClientId: process.env.SPOTIFY_CLIENT_ID || '',
-    spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET || '',
-
-    /**
      * Lavalink nodes
      */
     nodes: [
