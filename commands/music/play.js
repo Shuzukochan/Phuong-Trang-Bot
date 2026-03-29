@@ -62,6 +62,8 @@ async function play(client, interaction, lang) {
         //     searchQuery = `ytsearch:${query}`;
         // }
 
+        console.log(`[DEBUG] Resolving query: ${searchQuery}`);
+
         const resolve = await client.riffy.resolve({ query: searchQuery, requester: interaction.user.username });
 
         if (!resolve || typeof resolve !== 'object' || !Array.isArray(resolve.tracks)) {

@@ -49,7 +49,7 @@ module.exports = {
             password: process.env.LAVALINK_PASSWORD,
             host: process.env.LAVALINK_HOST,
             port: parseInt(process.env.LAVALINK_PORT),
-            secure: false
+            secure: true
         }
     ],
 
